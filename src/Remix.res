@@ -107,5 +107,4 @@ module CreateCookieOptions = {
 }
 
 @module("remix") external createCookie: string => Cookie.t = "createCookie"
-@module("remix")
-external createCookieWithOptions: (string, CreateCookieOptions.t) => Cookie.t = "createCookie"
+@module("remix") external createCookieWithOptions: (string, CreateCookieOptions.t) => Cookie.t = "createCookie"
