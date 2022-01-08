@@ -1,0 +1,29 @@
+{
+  "name": "rescript-remix",
+  "version": "0.0.1",
+  "scripts": {
+    "build": "rescript",
+    "start": "rescript build -w",
+    "clean": "rescript clean",
+    "format-all": "rescript format -all"
+  },
+  "keywords": [
+    "rescript",
+    "remix"
+  ],
+  "files": [
+    "src",
+    "bsconfig.json"
+  ],
+  "author": {
+    "email": "the.tomsherman@gmail.com",
+    "name": "Tom Sherman",
+    "url": "https://github.com/tom-sherman"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@rescript/react": "^0.10.3",
+    "rescript": "*",
+    "rescript-webapi": "^0.3.2"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "name": "rescript-remix",
+  "bsc-flags": [
+    "-bs-no-version-header"
+  ],
+  "sources": {
+    "dir": "src",
+    "subdirs": true
+  },
+  "warnings": {
+    "number": "+A",
+    "error": "+A"
+  },
+  "bs-dependencies": [
+    "@rescript/react",
+    "rescript-webapi"
+  ]
+}
