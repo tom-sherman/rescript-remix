@@ -21,4 +21,4 @@ jobs:
 
       - name: Evaluate if there are changes
         if: steps.check-changes.outputs.outcome == failure()
-        run: echo "Formatting produced changes, please ensure your code is formatted with rescript format"
+        run: echo "Formatting produced changes, please ensure your code is formatted with rescript format" && exit 1
