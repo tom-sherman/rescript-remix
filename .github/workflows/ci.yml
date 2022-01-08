@@ -6,14 +6,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+
       - uses: actions/setup-node@v2
         with:
           node-version: '16.x'
+
       - run: npm ci
-      - run: npm run format
+
+      - run: npm run format-all
+
       - name: Check for uncommitted changes
         id: check-changes
         uses: mskri/check-uncommitted-changes-action@v1.0.1
+
       - name: Evaluate if there are changes
         if: steps.check-changes.outputs.outcome == failure()
         run: echo "Formatting produced changes, please ensure your code is formatted with rescript format"
