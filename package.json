@@ -1,6 +1,6 @@
 {
   "name": "rescript-remix",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "scripts": {
     "build": "rescript",
     "start": "rescript build -w",
@@ -19,6 +19,10 @@
     "email": "the.tomsherman@gmail.com",
     "name": "Tom Sherman",
     "url": "https://github.com/tom-sherman"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tom-sherman/rescript-remix.git"
   },
   "license": "MIT",
   "devDependencies": {
