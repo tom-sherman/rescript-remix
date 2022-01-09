@@ -5,7 +5,8 @@
     "build": "rescript",
     "start": "rescript build -w",
     "clean": "rescript clean",
-    "format-all": "rescript format -all"
+    "format-all": "rescript format -all",
+    "test": "jest"
   },
   "keywords": [
     "rescript",
@@ -26,8 +27,16 @@
   },
   "license": "MIT",
   "devDependencies": {
+    "@glennsl/rescript-jest": "^0.9.0",
     "@rescript/react": "^0.10.3",
+    "mock-fs": "^5.1.2",
     "rescript": "*",
+    "rescript-nodejs": "^14.2.0",
     "rescript-webapi": "^0.3.2"
+  },
+  "jest": {
+    "testMatch": [
+      "**/*_spec.js"
+    ]
   }
 }
