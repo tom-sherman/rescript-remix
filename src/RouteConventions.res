@@ -7,7 +7,7 @@ type routeOptions = {index: bool}
 
 type defineRoute
 type defineChildRoute = (. string, string, routeOptions) => unit
-type defineParentRoute = (. string, string, unit => unit) => unit
+type defineParentRoute = (. option<string>, string, unit => unit) => unit
 
 external toDefineChildRoute: defineRoute => defineChildRoute = "%identity"
 external toDefineParentRoute: defineRoute => defineParentRoute = "%identity"
@@ -41,7 +41,9 @@ let filenameToSegment = (name: string): string => {
       }
     , {segment: "", state: Normal})).segment
 
-  if segment == "index" {
+  if name->Js.String2.startsWith("_") {
+    "_" ++ segment
+  } else if segment == "index" {
     ""
   } else {
     segment
@@ -91,7 +93,9 @@ let rec registerBuiltRoutes = (
       registerBuiltRoutes(defineRoute, nested, ~segments=segments->Js.Array2.concat([segment]), ())
     | (Some(file), Some(nested)) =>
       (defineRoute->toDefineParentRoute)(.
-        segments->Js.Array2.concat([segment])->Js.Array2.joinWith("/"),
+        segment->Js.String2.startsWith("_")
+          ? None
+          : Some(segments->Js.Array2.concat([segment])->Js.Array2.joinWith("/")),
         file,
         () => registerBuiltRoutes(defineRoute, nested, ()),
       )

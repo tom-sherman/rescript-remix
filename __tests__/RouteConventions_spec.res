@@ -20,12 +20,14 @@ module MockRouteDefiner = {
 
   let defineParentRoute = (.
     definer: t,
-    path: string,
+    path: option<string>,
     file: string,
     callback: (. unit) => unit,
   ) => {
     let nestedRoutes = Map.make()
-    definer->last->Map.set(path, {file: file, nested: Some(nestedRoutes)})
+    definer
+    ->last
+    ->Map.set(path->Belt.Option.getWithDefault(""), {file: file, nested: Some(nestedRoutes)})
     definer->Js.Array2.push(nestedRoutes)->ignore
     callback(.)
     definer->Js.Array2.pop->ignore
@@ -88,6 +90,27 @@ describe("directory structure to route and view hierarchy", () => {
             file: "res-routes/blog.js",
             nested: Some(
               Map.fromArray([("blog", {file: "res-routes/blog/blog.js", nested: None})]),
+            ),
+          },
+        ),
+      ]),
+    )
+  })
+
+  test("it should not add a route segment when a folder and file start with an underscore", () => {
+    MockFs.mock({"app": {"res-routes": {"_blog.js": "", "_blog": {"blog.js": ""}}}})
+
+    let routeDefiner = MockRouteDefiner.make()
+    RouteConventions.registerRoutes(routeDefiner->MockRouteDefiner.defineRoute)
+
+    expect(routeDefiner->MockRouteDefiner.routes)->toEqual(
+      Map.fromArray([
+        (
+          "",
+          {
+            file: "res-routes/_blog.js",
+            nested: Some(
+              Map.fromArray([("blog", {file: "res-routes/_blog/blog.js", nested: None})]),
             ),
           },
         ),
