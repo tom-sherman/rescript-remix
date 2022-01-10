@@ -1,5 +1,3 @@
-@@warning("-4")
-
 module Map = Belt.MutableMap.String
 @module("fs") external statSync: string => NodeJs.Fs.Stats.t = "statSync"
 
@@ -37,7 +35,10 @@ let filenameToSegment = (name: string): string => {
       | ("]", SawCloseBracket) => {...acc, state: Normal}
       | ("]", InsideParameter) => {...acc, state: Normal}
       | (_, SawOpenBracket) => {segment: acc.segment ++ ":" ++ char, state: InsideParameter}
-      | (_, _) => {...acc, segment: acc.segment ++ char}
+      | (_, SawCloseBracket) => {segment: acc.segment ++ "]" ++ char, state: InsideEscape}
+      | (_, Normal)
+      | (_, InsideEscape)
+      | (_, InsideParameter) => {...acc, segment: acc.segment ++ char}
       }
     , {segment: "", state: Normal})).segment
 
