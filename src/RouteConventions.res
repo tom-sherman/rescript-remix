@@ -1,9 +1,8 @@
 module Map = Belt.MutableMap.String
 @module("fs") external statSync: string => NodeJs.Fs.Stats.t = "statSync"
 
-type routeOptions = {index: bool}
-
 type defineRoute
+type routeOptions = {index: bool}
 type defineChildRoute = (. string, string, routeOptions) => unit
 type defineParentRoute = (. option<string>, string, unit => unit) => unit
 
@@ -56,11 +55,11 @@ let rec buildRoutesForDir = (path: string) => {
 
   let files = NodeJs.Fs.readdirSync(NodeJs.Path.join(["app", path]))
   Js.Array2.forEach(files, file => {
-    let fileDef = file->NodeJs.Path.parse
+    let fileInfo = file->NodeJs.Path.parse
     let isDirectory = ["app", path, file]->NodeJs.Path.join->statSync->NodeJs.Fs.Stats.isDirectory
 
-    if isDirectory || fileDef.ext === ".js" {
-      let segment = (isDirectory ? fileDef.base : fileDef.name)->filenameToSegment
+    if isDirectory || fileInfo.ext === ".js" {
+      let segment = (isDirectory ? fileInfo.base : fileInfo.name)->filenameToSegment
       let mapping = routes->Map.getWithDefault(segment, {file: None, nested: None})
 
       if isDirectory {
@@ -77,8 +76,8 @@ let rec buildRoutesForDir = (path: string) => {
 }
 
 let rec registerBuiltRoutes = (
-  defineRoute: defineRoute,
   routes: routeDefinition,
+  defineRoute: defineRoute,
   ~segments=[],
   (),
 ) => {
@@ -91,14 +90,15 @@ let rec registerBuiltRoutes = (
         {index: segment == ""},
       )
     | (None, Some(nested)) =>
-      registerBuiltRoutes(defineRoute, nested, ~segments=segments->Js.Array2.concat([segment]), ())
+      registerBuiltRoutes(nested, defineRoute, ~segments=segments->Js.Array2.concat([segment]), ())
     | (Some(file), Some(nested)) =>
+      let isPathlessRoute = segment->Js.String2.startsWith("_")
       (defineRoute->toDefineParentRoute)(.
-        segment->Js.String2.startsWith("_")
+        isPathlessRoute
           ? None
           : Some(segments->Js.Array2.concat([segment])->Js.Array2.joinWith("/")),
         file,
-        () => registerBuiltRoutes(defineRoute, nested, ()),
+        () => registerBuiltRoutes(nested, defineRoute, ()),
       )
     | (None, None) => Js.Exn.raiseError("Invariant error")
     }
@@ -106,6 +106,5 @@ let rec registerBuiltRoutes = (
 }
 
 let registerRoutes = (defineRoute: defineRoute) => {
-  let routes = buildRoutesForDir("res-routes")
-  registerBuiltRoutes(defineRoute, routes, ())
+  buildRoutesForDir("res-routes")->registerBuiltRoutes(defineRoute, ())
 }
