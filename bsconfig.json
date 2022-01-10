@@ -3,7 +3,6 @@
   "bsc-flags": [
     "-bs-no-version-header"
   ],
-  "reason": { "react-jsx": 3 },
   "sources": [{
     "dir": "src",
     "subdirs": true
