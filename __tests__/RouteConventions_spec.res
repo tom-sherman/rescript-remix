@@ -1,4 +1,6 @@
+// Disable warning on unused parameter (required by the raw JS)
 @@warning("-27")
+
 open Jest
 open Expect
 
