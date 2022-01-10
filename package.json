@@ -15,7 +15,8 @@
   ],
   "files": [
     "src",
-    "bsconfig.json"
+    "bsconfig.json",
+    "registerRoutes.js"
   ],
   "author": {
     "email": "the.tomsherman@gmail.com",
