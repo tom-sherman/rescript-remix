@@ -12,6 +12,11 @@
       "dir": "__tests__",
       "subdirs": true,
       "type": "dev"
+    },
+    {
+      "dir": "routing",
+      "subdirs": true,
+      "type": "dev"
     }
   ],
   "reason": {
