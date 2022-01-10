@@ -23,7 +23,7 @@
   },
   "bs-dependencies": [
     "@rescript/react",
-    "rescript-webapi",
+    "rescript-webapi"
   ],
   "bs-dev-dependencies": [
     "@glennsl/rescript-jest",
