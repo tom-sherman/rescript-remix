@@ -7,6 +7,9 @@
     "dir": "src",
     "subdirs": true
   },
+  "reason": {
+    "react-jsx": 3
+  },
   "warnings": {
     "number": "+A",
     "error": "+A"
