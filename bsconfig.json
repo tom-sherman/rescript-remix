@@ -3,14 +3,17 @@
   "bsc-flags": [
     "-bs-no-version-header"
   ],
-  "sources": [{
-    "dir": "src",
-    "subdirs": true
-  }, {
-    "dir": "__tests__",
-    "subdirs": true,
-    "type": "dev"
-  }],
+  "sources": [
+    {
+      "dir": "src",
+      "subdirs": true
+    },
+    {
+      "dir": "__tests__",
+      "subdirs": true,
+      "type": "dev"
+    }
+  ],
   "reason": {
     "react-jsx": 3
   },
@@ -21,9 +24,9 @@
   "bs-dependencies": [
     "@rescript/react",
     "rescript-webapi",
-    "rescript-nodejs"
   ],
   "bs-dev-dependencies": [
-    "@glennsl/rescript-jest"
+    "@glennsl/rescript-jest",
+    "rescript-nodejs"
   ]
 }
