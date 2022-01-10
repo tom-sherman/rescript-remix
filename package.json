@@ -1,6 +1,6 @@
 {
   "name": "rescript-remix",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "scripts": {
     "build": "rescript",
     "postbuild": "cp lib/js/src/RouteConventions.js registerRoutes.js",
