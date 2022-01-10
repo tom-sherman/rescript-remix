@@ -36,4 +36,4 @@ jobs:
 
       - name: Print uncommitted changes
         if: steps.check-changes.outputs.changes != ''
-        run: false || (echo "There are uncommitted changes" && git status --porcelain)
+        run: echo "There are uncommitted changes" && git status --porcelain && exit 1
