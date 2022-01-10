@@ -2,5 +2,3 @@
 @module external mockWithDict: Js.Dict.t<'a> => unit = "mock-fs"
 
 @module("mock-fs") external restore: unit => unit = "restore"
-
-let x = "" + 3
