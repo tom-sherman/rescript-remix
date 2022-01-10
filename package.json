@@ -3,9 +3,11 @@
   "version": "0.1.1",
   "scripts": {
     "build": "rescript",
+    "postbuild": "cp lib/js/src/RouteConventions.js registerRoutes.js",
     "start": "rescript build -w",
     "clean": "rescript clean",
-    "format-all": "rescript format -all"
+    "format-all": "rescript format -all",
+    "test": "jest"
   },
   "keywords": [
     "rescript",
@@ -13,7 +15,8 @@
   ],
   "files": [
     "src",
-    "bsconfig.json"
+    "bsconfig.json",
+    "registerRoutes.js"
   ],
   "author": {
     "email": "the.tomsherman@gmail.com",
@@ -26,8 +29,16 @@
   },
   "license": "MIT",
   "devDependencies": {
+    "@glennsl/rescript-jest": "^0.9.0",
     "@rescript/react": "^0.10.3",
+    "mock-fs": "^5.1.2",
     "rescript": "*",
+    "rescript-nodejs": "^14.2.0",
     "rescript-webapi": "^0.3.2"
+  },
+  "jest": {
+    "testMatch": [
+      "**/*_spec.js"
+    ]
   }
 }
