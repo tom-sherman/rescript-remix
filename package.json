@@ -8,7 +8,7 @@
     "clean": "rescript clean",
     "format-all": "rescript format -all",
     "test": "jest",
-    "prepublish": "npm run build"
+    "prepublishOnly": "npm run build"
   },
   "keywords": [
     "rescript",
