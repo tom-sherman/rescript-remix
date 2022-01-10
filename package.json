@@ -3,6 +3,7 @@
   "version": "0.1.1",
   "scripts": {
     "build": "rescript",
+    "postbuild": "cp lib/js/src/RouteConventions.js registerRoutes.js",
     "start": "rescript build -w",
     "clean": "rescript clean",
     "format-all": "rescript format -all",

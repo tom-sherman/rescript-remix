@@ -3,8 +3,10 @@
 module Map = Belt.MutableMap.String
 @module("fs") external statSync: string => NodeJs.Fs.Stats.t = "statSync"
 
+type routeOptions = {index: bool}
+
 type defineRoute
-type defineChildRoute = (. string, string) => unit
+type defineChildRoute = (. string, string, routeOptions) => unit
 type defineParentRoute = (. string, string, unit => unit) => unit
 
 external toDefineChildRoute: defineRoute => defineChildRoute = "%identity"
@@ -83,6 +85,7 @@ let rec registerBuiltRoutes = (
       (defineRoute->toDefineChildRoute)(.
         segments->Js.Array2.concat([segment])->Js.Array2.joinWith("/"),
         file,
+        {index: segment == ""},
       )
     | (None, Some(nested)) =>
       registerBuiltRoutes(defineRoute, nested, ~segments=segments->Js.Array2.concat([segment]), ())

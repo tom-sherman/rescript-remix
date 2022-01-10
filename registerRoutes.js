@@ -1,1 +1,0 @@
-module.exports = require('./lib/js/src/RouteConventions').registerRoutes
