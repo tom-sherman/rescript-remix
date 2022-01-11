@@ -109,3 +109,43 @@ module CreateCookieOptions = {
 @module("remix") external createCookie: string => Cookie.t = "createCookie"
 @module("remix")
 external createCookieWithOptions: (string, CreateCookieOptions.t) => Cookie.t = "createCookie"
+
+module Response = {
+  type t<'a> = Webapi.Fetch.Response.t
+  @module("remix") external json: 'a => t<'a> = "json"
+  @module("remix") external jsonWithInit: ('a, Webapi.Fetch.ResponseInit.t) => t<'a> = "json"
+
+  @module("remix") external redirect: string => t<'a> = "redirect"
+  @module("remix")
+  external redirectWithInit: (string, Webapi.Fetch.ResponseInit.t) => t<'a> = "redirect"
+}
+
+module DataFunctionInput = {
+  // Defined as opaque so that user bindings can be added for `LoaderInput.context(input)`
+  type t
+  @get external params: t => Js.Dict.t<string> = "params"
+  @get external request: t => Webapi.Fetch.Request.t = "request"
+}
+
+module type Loadable = {
+  type t
+  let loader: DataFunctionInput.t => Js.Promise.t<t>
+}
+
+module Loader = (Loadable: Loadable) => {
+  include Loadable
+
+  @module("remix") external use: unit => t = "useLoaderData"
+}
+
+module type LoadableResponse = {
+  type t
+  let loader: DataFunctionInput.t => Js.Promise.t<Response.t<t>>
+}
+
+module LoaderResponse = (LoadableResponse: LoadableResponse) => {
+  type t = LoadableResponse.t
+  let loader = (LoadableResponse.loader: DataFunctionInput.t => Js.Promise.t<Response.t<t>>)
+
+  @module("remix") external use: unit => t = "useLoaderData"
+}
