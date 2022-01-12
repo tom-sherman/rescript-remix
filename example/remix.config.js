@@ -10,7 +10,7 @@ module.exports = {
   serverBuildDirectory: "build",
   devServerPort: 8002,
   ignoredRouteFiles: [".*", "*.res"],
-  transpileModules: ["rescript"],
+  transpileModules: ["rescript", "rescript-webapi"],
   routes(defineRoutes) {
     return defineRoutes(route => {
       registerRoutes(route);

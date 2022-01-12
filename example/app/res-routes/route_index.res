@@ -15,7 +15,7 @@ let headers = () =>
   }
 
 @react.component
-let default = () =>
+let default = () => {
   <div className="container">
     <div className="content">
       <h1> {"Remix"->React.string} <span> {"Jokes!"->React.string} </span> </h1>
@@ -32,3 +32,11 @@ let default = () =>
       </nav>
     </div>
   </div>
+}
+
+let catchBoundary = () => "Oops"->React.string
+%%raw(`export const CatchBoundary = catchBoundary`)
+
+@react.component
+let errorBoundary = () => "Uh oh"->React.string
+%%raw(`export const ErrorBoundary = errorBoundary`)

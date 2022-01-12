@@ -50,6 +50,9 @@ module Link = {
     ~replace: bool=?,
     ~state: 'a=?,
     ~children: React.element,
+    ~className: string=?,
+    ~title: string=?,
+    ~ariaLabel: string=?,
   ) => React.element = "Link"
 }
 
@@ -72,6 +75,8 @@ module Form = {
 @module("remix") external useBeforeUnload: (@uncurry unit => unit) => unit = "useBeforeUnload"
 
 @module("remix") external useLoaderData: unit => 'a = "useLoaderData"
+
+@module("remix") external useCatch: unit => Webapi.Fetch.Response.t = "useCatch"
 
 module Cookie = {
   type t
