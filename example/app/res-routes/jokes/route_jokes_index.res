@@ -50,5 +50,11 @@ let catchBoundary = () => {
     )
   }
 }
-// %%raw(`export const CatchBoundary = Route_jokes_index$catchBoundary`)
 %%raw(`export const CatchBoundary = catchBoundary`)
+
+let errorBoundary = (error: RemixHelpers.errorProps) => {
+  Js.log(error.error)
+
+  <div className="error-container"> {"I did a whoopsies."->React.string} </div>
+}
+%%raw(`export const ErrorBoundary = errorBoundary`)

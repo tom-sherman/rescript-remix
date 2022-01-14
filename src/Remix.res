@@ -78,6 +78,8 @@ module Form = {
 
 @module("remix") external useCatch: unit => Webapi.Fetch.Response.t = "useCatch"
 
+@module("remix") external useParams: unit => {..} = "useParams"
+
 module Cookie = {
   type t
 

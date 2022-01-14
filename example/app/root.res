@@ -55,10 +55,20 @@ module Document = {
 @react.component
 let default = () => <Document title="Remix: So great, it's funny!"> <Remix.Outlet /> </Document>
 
-// todo catchBoundary
+let catchBoundary = () => {
+  open Webapi.Fetch.Response
 
-type errorProps = {error: Js.Exn.t}
-let errorBoundary = (error: errorProps) => {
+  let caught = Remix.useCatch()
+
+  <Document title={`${caught->status->Belt.Int.toString} ${caught->statusText}`}>
+    <div className="error-container">
+      <h1> {`${caught->status->Belt.Int.toString} ${caught->statusText}`->React.string} </h1>
+    </div>
+  </Document>
+}
+%%raw(`export const CatchBoundary = catchBoundary`)
+
+let errorBoundary = (error: RemixHelpers.errorProps) => {
   Js.log(error)
 
   <Document title="Uh-oh!">

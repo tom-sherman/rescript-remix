@@ -33,10 +33,3 @@ let default = () => {
     </div>
   </div>
 }
-
-let catchBoundary = () => "Oops"->React.string
-%%raw(`export const CatchBoundary = catchBoundary`)
-
-@react.component
-let errorBoundary = () => "Uh oh"->React.string
-%%raw(`export const ErrorBoundary = errorBoundary`)
