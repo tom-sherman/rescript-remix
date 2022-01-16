@@ -84,21 +84,23 @@ external redirectWithInit: (string, Webapi.Fetch.ResponseInit.t) => Webapi.Fetch
 
 @module("remix") external useLoaderData: unit => 'a = "useLoaderData"
 
+@module("remix") external useActionData: unit => option<'a> = "useActionData"
+
 @module("remix") external useCatch: unit => Webapi.Fetch.Response.t = "useCatch"
 
 @module("remix") external useParams: unit => params = "useParams"
 
 type appLoadContext
-type loaderFunctionArgs = {
+type dataFunctionArgs = {
   request: Webapi.Fetch.Request.t,
   context: appLoadContext,
   params: params,
 }
-type loaderFunction<'resultType> = loaderFunctionArgs => Js.Promise.t<'resultType>
-type loaderFunctionForData<'resultType> = loaderFunctionArgs => Js.Promise.t<'resultType>
-type loaderFunctionForResponse<'resultType> = loaderFunctionArgs => Js.Promise.t<
-  Webapi.Fetch.Response.t,
->
+type loaderFunction<'resultType> = dataFunctionArgs => Js.Promise.t<'resultType>
+type loaderFunctionForData<'resultType> = dataFunctionArgs => Js.Promise.t<'resultType>
+type loaderFunctionForResponse = dataFunctionArgs => Js.Promise.t<Webapi.Fetch.Response.t>
+
+type actionFunctionForResponse = dataFunctionArgs => Js.Promise.t<Webapi.Fetch.Response.t>
 
 type catchBoundaryComponent = unit => React.element
 

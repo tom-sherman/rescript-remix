@@ -3,7 +3,7 @@
 type loaderData = {joke: Model.Jokes.t, isOwner: bool}
 
 // loader
-let loader: Remix.loaderFunctionForResponse<loaderData> = ({request, params}) => {
+let loader: Remix.loaderFunctionForResponse = ({request, params}) => {
   let jokeId = params->Js.Dict.unsafeGet("jokeId")
   Promise.all2((request->Session.getUserId, jokeId->Model.Jokes.getById))->Promise.then(((
     userId,

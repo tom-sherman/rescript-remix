@@ -51,7 +51,7 @@ body {
   background-color: var(--color-background);
 }
 
-[data-light] {
+.light {
   --color-invalid: hsl(356, 70%, 39%);
   color: var(--color-background);
   background-color: var(--color-foreground);
@@ -250,21 +250,21 @@ textarea {
     background-color 50ms ease-out, color 50ms ease-out;
 }
 
-[data-light] [type="text"],
-[data-light] [type="password"],
-[data-light] [type="date"],
-[data-light] [type="datetime"],
-[data-light] [type="datetime-local"],
-[data-light] [type="month"],
-[data-light] [type="week"],
-[data-light] [type="email"],
-[data-light] [type="number"],
-[data-light] [type="search"],
-[data-light] [type="tel"],
-[data-light] [type="time"],
-[data-light] [type="url"],
-[data-light] [type="color"],
-[data-light] textarea {
+.light [type="text"],
+.light [type="password"],
+.light [type="date"],
+.light [type="datetime"],
+.light [type="datetime-local"],
+.light [type="month"],
+.light [type="week"],
+.light [type="email"],
+.light [type="number"],
+.light [type="search"],
+.light [type="tel"],
+.light [type="time"],
+.light [type="url"],
+.light [type="color"],
+.light textarea {
   color: var(--color-background);
   background-color: hsl(0 0% 0% / 10%);
 }
