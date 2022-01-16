@@ -71,7 +71,7 @@ module Form = {
 
 type params = Js.Dict.t<string>
 
-@module("remix") external json: {..} => Webapi.Fetch.Response.t = "json"
+@module("remix") external json: 'a => Webapi.Fetch.Response.t = "json"
 @module("remix")
 external jsonWithInit: ({..}, Webapi.Fetch.ResponseInit.t) => Webapi.Fetch.Response.t = "json"
 

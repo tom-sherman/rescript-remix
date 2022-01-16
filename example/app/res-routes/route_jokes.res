@@ -18,6 +18,8 @@ let loader: Remix.loaderFunction<loaderData> = ({request}) => {
 let default = () => {
   let data: loaderData = Remix.useLoaderData()
 
+  Js.log(data)
+
   <div className="jokes-layout">
     <header className="jokes-header">
       <div className="container">
