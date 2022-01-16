@@ -65,12 +65,20 @@ module Form = {
     ~reloadDocument: bool=?,
     ~replace: bool=?,
     ~onSubmit: @uncurry ReactEvent.Form.t => unit=?,
+    ~children: React.element,
   ) => React.element = "Form"
 }
 
+type params = Js.Dict.t<string>
+
 @module("remix") external json: {..} => Webapi.Fetch.Response.t = "json"
+@module("remix")
+external jsonWithInit: ({..}, Webapi.Fetch.ResponseInit.t) => Webapi.Fetch.Response.t = "json"
 
 @module("remix") external redirect: string => Webapi.Fetch.Response.t = "redirect"
+@module("remix")
+external redirectWithInit: (string, Webapi.Fetch.ResponseInit.t) => Webapi.Fetch.Response.t =
+  "redirect"
 
 @module("remix") external useBeforeUnload: (@uncurry unit => unit) => unit = "useBeforeUnload"
 
@@ -78,7 +86,24 @@ module Form = {
 
 @module("remix") external useCatch: unit => Webapi.Fetch.Response.t = "useCatch"
 
-@module("remix") external useParams: unit => {..} = "useParams"
+@module("remix") external useParams: unit => params = "useParams"
+
+type appLoadContext
+type loaderFunctionArgs = {
+  request: Webapi.Fetch.Request.t,
+  context: appLoadContext,
+  params: params,
+}
+type loaderFunction<'resultType> = loaderFunctionArgs => Js.Promise.t<'resultType>
+type loaderFunctionForData<'resultType> = loaderFunctionArgs => Js.Promise.t<'resultType>
+type loaderFunctionForResponse<'resultType> = loaderFunctionArgs => Js.Promise.t<
+  Webapi.Fetch.Response.t,
+>
+
+type catchBoundaryComponent = unit => React.element
+
+type errorBoundaryComponentProps = {error: Js.Exn.t}
+type errorBoundaryComponent = errorBoundaryComponentProps => React.element
 
 module Cookie = {
   type t
@@ -116,3 +141,34 @@ module CreateCookieOptions = {
 @module("remix") external createCookie: string => Cookie.t = "createCookie"
 @module("remix")
 external createCookieWithOptions: (string, CreateCookieOptions.t) => Cookie.t = "createCookie"
+
+module CreateCookieSessionStorageCookieOptions = {
+  type t
+
+  @obj
+  external make: (
+    ~name: string=?,
+    ~decode: string => string=?,
+    ~encode: string => string=?,
+    ~domain: string=?,
+    ~expires: Js.Date.t=?,
+    ~httpOnly: bool=?,
+    ~maxAge: int=?,
+    ~path: string=?,
+    ~sameSite: [#lax | #strict | #none]=?,
+    ~secure: bool=?,
+    ~secrets: array<string>=?,
+    unit,
+  ) => t = ""
+}
+type createCookieSessionStorageOptions = {cookie: CreateCookieSessionStorageCookieOptions.t}
+
+type session = Js.Dict.t<string>
+type sessionStorage = {
+  getSession: (. option<string>) => Js.Promise.t<session>,
+  commitSession: (. session) => Js.Promise.t<string>,
+  destroySession: (. session) => Js.Promise.t<string>,
+}
+@module("remix")
+external createCookieSessionStorage: createCookieSessionStorageOptions => sessionStorage =
+  "createCookieSessionStorage"

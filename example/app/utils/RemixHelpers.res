@@ -5,4 +5,7 @@ module HeadersInit = {
     Webapi.Fetch.HeadersInit.make(headers->asObject)
 }
 
-type errorProps = {error: Js.Exn.t}
+external responseAsExn: Webapi.Fetch.Response.t => 'a = "%identity"
+let rejectWithResponse = (response: Webapi.Fetch.Response.t): Promise.t<'a> => {
+  Promise.reject(response->responseAsExn)
+}

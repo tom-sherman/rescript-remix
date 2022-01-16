@@ -1,16 +1,11 @@
 type loaderData = {randomJoke: Model.Jokes.t}
 
-external responseAsExn: Webapi.Fetch.Response.t => 'a = "%identity"
-let rejectWithResponse = (response: Webapi.Fetch.Response.t): Promise.t<'a> => {
-  Promise.reject(response->responseAsExn)
-}
-
-let loader = (): Promise.t<loaderData> => {
+let loader: Remix.loaderFunction<loaderData> = _ => {
   Model.Jokes.getRandom()->Promise.then(joke =>
     switch joke {
     | Some(joke) => Promise.resolve({randomJoke: joke})
     | None =>
-      rejectWithResponse(
+      RemixHelpers.rejectWithResponse(
         Webapi.Fetch.Response.makeWithInit(
           "No random joke found",
           Webapi.Fetch.ResponseInit.make(~status=404, ()),
@@ -33,7 +28,7 @@ let default = () => {
   </div>
 }
 
-let catchBoundary = () => {
+let catchBoundary: Remix.catchBoundaryComponent = () => {
   let caught = Remix.useCatch()
   Js.log(caught)
 
@@ -52,8 +47,8 @@ let catchBoundary = () => {
 }
 %%raw(`export const CatchBoundary = catchBoundary`)
 
-let errorBoundary = (error: RemixHelpers.errorProps) => {
-  Js.log(error.error)
+let errorBoundary: Remix.errorBoundaryComponent = props => {
+  Js.log(props.error)
 
   <div className="error-container"> {"I did a whoopsies."->React.string} </div>
 }

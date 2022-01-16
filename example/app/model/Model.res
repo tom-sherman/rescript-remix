@@ -3,48 +3,50 @@ module Jokes = {
   let jokes: array<t> = [
     {
       id: "a",
-      jokesterId: "z",
+      jokesterId: "drew",
       name: "Road worker",
       content: `I never wanted to believe that my Dad was stealing from his job as a road worker. But when I got home, all the signs were there.`,
     },
     {
       id: "b",
-      jokesterId: "z",
+      jokesterId: "drew",
       name: "Frisbee",
       content: `I was wondering why the frisbee was getting bigger, then it hit me.`,
     },
     {
       id: "c",
-      jokesterId: "z",
+      jokesterId: "drew",
       name: "Trees",
       content: `Why do trees seem suspicious on sunny days? Dunno, they're just a bit shady.`,
     },
     {
       id: "d",
-      jokesterId: "z",
+      jokesterId: "drew",
       name: "Skeletons",
       content: `Why don't skeletons ride roller coasters? They don't have the stomach for it.`,
     },
     {
       id: "e",
-      jokesterId: "z",
+      jokesterId: "drew",
       name: "Hippos",
       content: `Why don't you find hippopotamuses hiding in trees? They're really good at it.`,
     },
     {
       id: "f",
-      jokesterId: "z",
+      jokesterId: "drew",
       name: "Dinner",
       content: `What did one plate say to the other plate? Dinner is on me!`,
     },
     {
       id: "g",
-      jokesterId: "z",
+      jokesterId: "drew",
       name: "Elevator",
       content: `My first time using an elevator was an uplifting experience. The second time let me down.`,
     },
   ]
 
+  let getById = (jokeId: string): Promise.t<option<t>> =>
+    jokes->Js.Array2.find(joke => joke.id == jokeId)->Promise.resolve
   let getAll = () => jokes->Promise.resolve
   let getLatest = () => jokes->Belt.Array.slice(~offset=0, ~len=5)->Promise.resolve
   let getRandom = () =>
@@ -52,4 +54,19 @@ module Jokes = {
     ->Js.Math.floor_int
     ->Belt.Array.get(jokes, _)
     ->Js.Promise.resolve
+}
+
+module Users = {
+  type t = {username: string, password: string}
+  let users: array<t> = [
+    {
+      username: "drew",
+      password: "password",
+    },
+  ]
+
+  let getByUsername = (username: string): Promise.t<option<t>> =>
+    users->Js.Array2.find(user => user.username == username)->Promise.resolve
+  let create = (user: t): Js.Promise.t<unit> =>
+    user->Js.Array2.push(users, _)->ignore->Promise.resolve
 }

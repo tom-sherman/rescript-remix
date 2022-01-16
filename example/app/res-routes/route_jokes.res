@@ -2,10 +2,16 @@
 
 let links = () => [{"rel": "stylesheet", "href": %raw(`stylesUrl`)}]
 
-type loaderData = {jokeListItems: array<Model.Jokes.t>}
+type loaderData = {jokeListItems: array<Model.Jokes.t>, user: option<Model.Users.t>}
 
-let loader = (): Promise.t<loaderData> => {
-  Model.Jokes.getLatest()->Promise.thenResolve(jokes => {jokeListItems: jokes})
+let loader: Remix.loaderFunction<loaderData> = ({request}) => {
+  Promise.all2((request->Session.getUser, Model.Jokes.getLatest()))->Promise.thenResolve(((
+    user,
+    jokes,
+  )) => {
+    user: user,
+    jokeListItems: jokes,
+  })
 }
 
 @react.component
@@ -16,20 +22,22 @@ let default = () => {
     <header className="jokes-header">
       <div className="container">
         <h1 className="home-link">
-          <Remix.Link to="/" title="Remix Jokes" ariaLabel="Remix Jokes">
+          // <Remix.Link to="/" title="Remix Jokes" ariaLabel="Remix Jokes">
+          <Remix.Link to="/" title="Remix Jokes">
             <span className="logo"> {`🤪`->React.string} </span>
             <span className="logo-medium"> {`J🤪KES`->React.string} </span>
           </Remix.Link>
         </h1>
-        // {data.user
-        //   ? <div className="user-info">
-        //       <span> {`Hi ${data.user.username}`} </span>
-        //       <Form action="/logout" method="post">
-        //         <button _type="submit" className="button"> {"Logout"->React.string} </button>
-        //       </Form>
-        //     </div>
-        //   : <Link to="/login"> {"Login"->React.string} </Link>}
-        <Remix.Link to="/login"> {"Login"->React.string} </Remix.Link>
+        {switch data.user {
+        | Some(user) =>
+          <div className="user-info">
+            <span> {`Hi ${user.username}`->React.string} </span>
+            <Remix.Form action="/logout" method=#post>
+              <button type_="submit" className="button"> {"Logout"->React.string} </button>
+            </Remix.Form>
+          </div>
+        | None => <Remix.Link to="/login"> {"Login"->React.string} </Remix.Link>
+        }}
       </div>
     </header>
     <main className="jokes-main">
