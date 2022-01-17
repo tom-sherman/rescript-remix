@@ -165,11 +165,20 @@ module CreateCookieSessionStorageCookieOptions = {
 }
 type createCookieSessionStorageOptions = {cookie: CreateCookieSessionStorageCookieOptions.t}
 
-type session = Js.Dict.t<string>
+module Session = {
+  type t
+
+  @send external has: (t, string) => bool = "has"
+  @send external set: (t, string, string) => unit = "set"
+  @send external flash: (t, string, string) => unit = "flash"
+  @send external get: (t, string) => option<string> = "get"
+  @send external unset: (t, string) => unit = "unset"
+}
+
 type sessionStorage = {
-  getSession: (. option<string>) => Js.Promise.t<session>,
-  commitSession: (. session) => Js.Promise.t<string>,
-  destroySession: (. session) => Js.Promise.t<string>,
+  getSession: (. option<string>) => Js.Promise.t<Session.t>,
+  commitSession: (. Session.t) => Js.Promise.t<string>,
+  destroySession: (. Session.t) => Js.Promise.t<string>,
 }
 @module("remix")
 external createCookieSessionStorage: createCookieSessionStorageOptions => sessionStorage =

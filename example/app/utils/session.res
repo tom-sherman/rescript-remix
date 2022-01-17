@@ -36,22 +36,18 @@ let {
   ),
 })
 
-let getUserSession = (request: Webapi.Fetch.Request.t): Promise.t<Remix.session> =>
+let getUserSession = (request: Webapi.Fetch.Request.t): Promise.t<Remix.Session.t> =>
   getSession(. request->Webapi.Fetch.Request.headers->Webapi.Fetch.Headers.get("Cookie"))
 
 let getUserId = (request: Webapi.Fetch.Request.t): Js.Promise.t<option<string>> => {
-  request
-  ->getUserSession
-  ->Promise.thenResolve(session => {
-    session->Js.Dict.get("userId")
-  })
+  request->getUserSession->Promise.thenResolve(session => session->Remix.Session.get("userId"))
 }
 
 let requireUserId = (request: Webapi.Fetch.Request.t): Js.Promise.t<string> => {
   request
   ->getUserSession
   ->Promise.then(session =>
-    switch session->Js.Dict.get("userId") {
+    switch session->Remix.Session.get("userId") {
     | Some(userId) => Promise.resolve(userId)
     | None => RemixHelpers.rejectWithResponse(Remix.redirect("/login"))
     }
@@ -83,7 +79,7 @@ let getUser = (request: Webapi.Fetch.Request.t): Promise.t<option<Model.Users.t>
 
 let createUserSession = (userId: string, redirectTo: string): Promise.t<Webapi.Fetch.Response.t> =>
   getSession(. None)->Promise.then(session => {
-    session->Js.Dict.set("userId", userId)
+    session->Remix.Session.set("userId", userId)
     commitSession(. session)->Promise.thenResolve(newCookie => {
       Remix.redirectWithInit(
         redirectTo,

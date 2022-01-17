@@ -25,7 +25,6 @@ let validatePassword = (password: string) =>
     None
   }
 
-// action data
 type fieldErrors = {username: option<string>, password: option<string>}
 type fields = {loginType: string, username: string, password: string}
 type actionData = {
@@ -149,21 +148,19 @@ let default = () => {
         </fieldset>
         <div>
           <label htmlFor="username-input"> {"Username"->React.string} </label>
-          // <input
-          //   type_="text"
-          //   id="username-input"
-          //   name="username"
-          //   defaultValue={actionData?.fields?.username}
-          //   aria-invalid={Boolean(actionData?.fieldErrors?.username)}
-          //   aria-describedby={
-          //     actionData?.fieldErrors?.username ? "username-error" : undefined
-          //   }
-          // />
           <input
             type_="text"
             id="username-input"
             name="username"
             defaultValue=?{actionData->flatMap(data => data.fields)->map(fields => fields.username)}
+            // ariaInvalid={actionData
+            // ->flatMap(data => data.fieldErrors)
+            // ->flatMap(fieldErrors => fieldErrors.username)
+            // ->Belt.Option.isSome}
+            ariaDescribedby=?{actionData
+            ->flatMap(data => data.fieldErrors)
+            ->flatMap(fieldErrors => fieldErrors.username)
+            ->map(_ => "username-error")}
           />
           {switch actionData
           ->flatMap(data => data.fieldErrors)
@@ -177,17 +174,20 @@ let default = () => {
         </div>
         <div>
           <label htmlFor="password-input"> {"Password"->React.string} </label>
-          // <input
-          //   id="password-input"
-          //   name="password"
-          //   defaultValue={actionData?.fields?.password}
-          //   type_="password"
-          //   aria-invalid={Boolean(actionData?.fieldErrors?.password)}
-          //   aria-describedby={
-          //     actionData?.fieldErrors?.password ? "password-error" : undefined
-          //   }
-          // />
-          <input id="password-input" name="password" type_="password" />
+          <input
+            type_="password"
+            id="password-input"
+            name="password"
+            defaultValue=?{actionData->flatMap(data => data.fields)->map(fields => fields.password)}
+            // ariaInvalid={actionData
+            // ->flatMap(data => data.fieldErrors)
+            // ->flatMap(fieldErrors => fieldErrors.password)
+            // ->Belt.Option.isSome}
+            ariaDescribedby=?{actionData
+            ->flatMap(data => data.fieldErrors)
+            ->flatMap(fieldErrors => fieldErrors.password)
+            ->map(_ => "password-error")}
+          />
           {switch actionData
           ->flatMap(data => data.fieldErrors)
           ->flatMap(fieldErrors => fieldErrors.password) {
