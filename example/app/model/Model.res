@@ -1,6 +1,6 @@
 module Jokes = {
   type t = {id: string, jokesterId: string, name: string, content: string}
-  let jokes: array<t> = [
+  let jokes: ref<array<t>> = ref([
     {
       id: "a",
       jokesterId: "drew",
@@ -43,17 +43,22 @@ module Jokes = {
       name: "Elevator",
       content: `My first time using an elevator was an uplifting experience. The second time let me down.`,
     },
-  ]
+  ])
 
   let getById = (jokeId: string): Promise.t<option<t>> =>
-    jokes->Js.Array2.find(joke => joke.id == jokeId)->Promise.resolve
-  let getAll = () => jokes->Promise.resolve
-  let getLatest = () => jokes->Belt.Array.slice(~offset=0, ~len=5)->Promise.resolve
+    jokes.contents->Js.Array2.find(joke => joke.id == jokeId)->Promise.resolve
+  let getAll = () => jokes.contents->Promise.resolve
+  let getLatest = () => jokes.contents->Belt.Array.slice(~offset=0, ~len=5)->Promise.resolve
   let getRandom = () =>
-    (Js.Math.random() *. jokes->Js.Array2.length->Belt.Int.toFloat)
+    (Js.Math.random() *. jokes.contents->Js.Array2.length->Belt.Int.toFloat)
     ->Js.Math.floor_int
-    ->Belt.Array.get(jokes, _)
+    ->Belt.Array.get(jokes.contents, _)
     ->Js.Promise.resolve
+  let deleteById = (jokeId: string): Promise.t<unit> => {
+    let newJokes = jokes.contents->Js.Array2.filter(joke => joke.id != jokeId)
+    jokes := newJokes
+    Promise.resolve()
+  }
 }
 
 module Users = {

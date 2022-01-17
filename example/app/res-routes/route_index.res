@@ -1,18 +1,21 @@
 %%raw(`import stylesUrl from "../styles/index.css"`)
 
-let meta = () =>
-  {
+let meta: Remix.metaFunction<unit> = _ =>
+  Remix.HtmlMetaDescriptor.make({
     "title": "Remix: So great, it's funny!",
     "description": "Remix jokes app. Learn Remix and laugh at the same time!",
-  }
+  })
 
 let links = () => [{"rel": "stylesheet", "href": %raw(`stylesUrl`)}]
 
-let headers = () =>
-  {
-    "Cache-Control": `public, max-age=${(60 * 10)->Js.Int.toString}, s-maxage=${(60 * 60 * 24 * 30)
-        ->Js.Int.toString}`,
-  }
+let headers: Remix.headersFunction = _ =>
+  Webapi.Fetch.Headers.makeWithInit(
+    Webapi.Fetch.HeadersInit.make({
+      "Cache-Control": `public, max-age=${(60 * 10)->Js.Int.toString}, s-maxage=${(60 *
+        60 *
+        24 * 30)->Js.Int.toString}`,
+    }),
+  )
 
 @react.component
 let default = () => {

@@ -96,6 +96,28 @@ type dataFunctionArgs = {
   context: appLoadContext,
   params: params,
 }
+type routeData
+type location
+type metaFunctionArgs<'appData> = {
+  data: option<'appData>,
+  parentsData: routeData,
+  params: params,
+  location: location,
+}
+module HtmlMetaDescriptor = {
+  type t
+
+  external make: {..} => t = "%identity"
+}
+type metaFunction<'appData> = metaFunctionArgs<'appData> => HtmlMetaDescriptor.t
+
+type headersFunctionArgs = {
+  loaderHeaders: Webapi.Fetch.Headers.t,
+  parentHeaders: Webapi.Fetch.Headers.t,
+  actionHeaders: Webapi.Fetch.Headers.t,
+}
+type headersFunction = headersFunctionArgs => Webapi.Fetch.Headers.t
+
 type loaderFunction<'resultType> = dataFunctionArgs => Js.Promise.t<'resultType>
 type loaderFunctionForData<'resultType> = dataFunctionArgs => Js.Promise.t<'resultType>
 type loaderFunctionForResponse = dataFunctionArgs => Js.Promise.t<Webapi.Fetch.Response.t>
