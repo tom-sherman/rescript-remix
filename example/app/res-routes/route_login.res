@@ -1,15 +1,21 @@
 %%raw(`import stylesUrl from "../styles/login.css"`)
 
-let meta = () =>
-  {"title": "Remix Jokes | Login", "description": "Login to submit your own jokes to Remix Jokes!"}
+let meta: Remix.metaFunction<unit> = _ =>
+  Remix.HtmlMetaDescriptor.make({
+    "title": "Remix Jokes | Login",
+    "description": "Login to submit your own jokes to Remix Jokes!",
+  })
 
 let links = () => [{"rel": "stylesheet", "href": %raw(`stylesUrl`)}]
 
-let headers = () =>
-  {
-    "Cache-Control": `public, max-age=${(60 * 10)->Js.Int.toString}, s-maxage=${(60 * 60 * 24 * 30)
-        ->Js.Int.toString}`,
-  }
+let headers: Remix.headersFunction = _ =>
+  Webapi.Fetch.Headers.makeWithInit(
+    Webapi.Fetch.HeadersInit.make({
+      "Cache-Control": `public, max-age=${(60 * 10)->Js.Int.toString}, s-maxage=${(60 *
+        60 *
+        24 * 30)->Js.Int.toString}`,
+    }),
+  )
 
 let validateUsername = (username: string) =>
   if username->Js.String2.length < 3 {
@@ -37,9 +43,9 @@ let action: Remix.actionFunctionForResponse = ({request}) => {
   request
   ->Webapi.Fetch.Request.formData
   ->Promise.then(formData => {
-    let loginType = RemixHelpers.getFormValue(formData, "loginType")
-    let username = RemixHelpers.getFormValue(formData, "username")
-    let password = RemixHelpers.getFormValue(formData, "password")
+    let loginType = RemixHelpers.FormData.getStringValue(formData, "loginType")
+    let username = RemixHelpers.FormData.getStringValue(formData, "username")
+    let password = RemixHelpers.FormData.getStringValue(formData, "password")
 
     switch (loginType, username, password) {
     | (Some(loginType), Some(username), Some(password)) => {
@@ -74,6 +80,25 @@ let action: Remix.actionFunctionForResponse = ({request}) => {
                 ->Promise.resolve
               }
             )
+          | "register" =>
+            Db.Users.getByUsername(username)->Promise.then(existingUser => {
+              switch existingUser {
+              | Some(_) =>
+                {
+                  formError: Some(`User with username ${username} already exists`),
+                  fieldErrors: None,
+                  fields: Some(fields),
+                }
+                ->Remix.json
+                ->Promise.resolve
+              | None =>
+                {Db.Users.username: username, password: password}
+                ->Db.Users.create
+                ->Promise.then(_ => {
+                  Session.createUserSession(username, "/jokes")
+                })
+              }
+            })
           | _ =>
             {
               formError: Some("Login type invalid"),

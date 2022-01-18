@@ -1,4 +1,4 @@
-type loaderData = {joke: Model.Jokes.t, isOwner: bool}
+type loaderData = {joke: Db.Jokes.t, isOwner: bool}
 
 let meta: Remix.metaFunction<loaderData> = ({data}) => {
   switch data {
@@ -17,7 +17,7 @@ let meta: Remix.metaFunction<loaderData> = ({data}) => {
 
 let loader: Remix.loaderFunctionForResponse = ({request, params}) => {
   let jokeId = params->Js.Dict.unsafeGet("jokeId")
-  Promise.all2((request->Session.getUserId, jokeId->Model.Jokes.getById))->Promise.then(((
+  Promise.all2((request->Session.getUserId, jokeId->Db.Jokes.getById))->Promise.then(((
     userId,
     joke,
   )) => {
@@ -35,7 +35,7 @@ let loader: Remix.loaderFunctionForResponse = ({request, params}) => {
         ),
       )->Promise.resolve
     | None =>
-      RemixHelpers.rejectWithResponse(
+      RemixHelpers.Promise.rejectResponse(
         Webapi.Fetch.Response.makeWithInit(
           "What a joke! Not found.",
           Webapi.Fetch.ResponseInit.make(~status=404, ()),
@@ -60,13 +60,13 @@ let action: Remix.actionFunctionForResponse = ({request, params}) => {
   switch method {
   | Delete => {
       let jokeId = params->Js.Dict.get("jokeId")->Belt.Option.getUnsafe
-      Promise.all2((request->Session.requireUserId, jokeId->Model.Jokes.getById))->Promise.then(((
+      Promise.all2((request->Session.requireUserId, jokeId->Db.Jokes.getById))->Promise.then(((
         userId,
         joke,
       )) => {
         switch joke {
         | None =>
-          RemixHelpers.rejectWithResponse(
+          RemixHelpers.Promise.rejectResponse(
             Webapi.Fetch.Response.makeWithInit(
               "Can't delete what does not exist",
               Webapi.Fetch.ResponseInit.make(~status=404, ()),
@@ -74,14 +74,14 @@ let action: Remix.actionFunctionForResponse = ({request, params}) => {
           )
         | Some(joke) =>
           if joke.jokesterId != userId {
-            RemixHelpers.rejectWithResponse(
+            RemixHelpers.Promise.rejectResponse(
               Webapi.Fetch.Response.makeWithInit(
                 "Pssh, nice try. That's not your joke",
                 Webapi.Fetch.ResponseInit.make(~status=401, ()),
               ),
             )
           } else {
-            Model.Jokes.deleteById(jokeId)->Promise.thenResolve(() => Remix.redirect("/jokes"))
+            Db.Jokes.deleteById(jokeId)->Promise.thenResolve(() => Remix.redirect("/jokes"))
           }
         }
       })

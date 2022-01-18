@@ -1,11 +1,11 @@
 type loginForm = {username: string, password: string}
 
 let register = ({username, password}): Promise.t<unit> =>
-  {Model.Users.username: username, password: password}->Model.Users.create
+  {Db.Users.username: username, password: password}->Db.Users.create
 
-let login = ({username, password}): Promise.t<option<Model.Users.t>> =>
+let login = ({username, password}): Promise.t<option<Db.Users.t>> =>
   username
-  ->Model.Users.getByUsername
+  ->Db.Users.getByUsername
   ->Promise.thenResolve(user =>
     switch user {
     | None => None
@@ -49,7 +49,7 @@ let requireUserId = (request: Webapi.Fetch.Request.t): Js.Promise.t<string> => {
   ->Promise.then(session =>
     switch session->Remix.Session.get("userId") {
     | Some(userId) => Promise.resolve(userId)
-    | None => RemixHelpers.rejectWithResponse(Remix.redirect("/login"))
+    | None => RemixHelpers.Promise.rejectResponse(Remix.redirect("/login"))
     }
   )
 }
@@ -67,12 +67,12 @@ let logout = (request: Webapi.Fetch.Request.t): Promise.t<Webapi.Fetch.Response.
     )
   )
 
-let getUser = (request: Webapi.Fetch.Request.t): Promise.t<option<Model.Users.t>> =>
+let getUser = (request: Webapi.Fetch.Request.t): Promise.t<option<Db.Users.t>> =>
   request
   ->getUserId
   ->Promise.then(userId =>
     switch userId {
-    | Some(userId) => Model.Users.getByUsername(userId)
+    | Some(userId) => Db.Users.getByUsername(userId)
     | None => None->Promise.resolve
     }
   )

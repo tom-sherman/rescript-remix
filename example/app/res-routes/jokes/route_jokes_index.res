@@ -1,11 +1,11 @@
-type loaderData = {randomJoke: Model.Jokes.t}
+type loaderData = {randomJoke: Db.Jokes.t}
 
 let loader: Remix.loaderFunction<loaderData> = _ => {
-  Model.Jokes.getRandom()->Promise.then(joke =>
+  Db.Jokes.getRandom()->Promise.then(joke =>
     switch joke {
     | Some(joke) => Promise.resolve({randomJoke: joke})
     | None =>
-      RemixHelpers.rejectWithResponse(
+      RemixHelpers.Promise.rejectResponse(
         Webapi.Fetch.Response.makeWithInit(
           "No random joke found",
           Webapi.Fetch.ResponseInit.make(~status=404, ()),

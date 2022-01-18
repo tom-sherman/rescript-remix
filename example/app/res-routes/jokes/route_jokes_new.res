@@ -7,7 +7,7 @@ let loader: Remix.loaderFunctionForResponse = ({request}) => {
     switch userId {
     | Some(_) => Remix.json(Js.Obj.empty())->Promise.resolve
     | None =>
-      RemixHelpers.rejectWithResponse(
+      RemixHelpers.Promise.rejectResponse(
         Webapi.Fetch.Response.makeWithInit(
           "Unauthorized",
           Webapi.Fetch.ResponseInit.make(~status=401, ()),
@@ -48,13 +48,14 @@ let action: Remix.actionFunctionForResponse = ({request}) => {
     request
     ->Webapi.Fetch.Request.formData
     ->Promise.then(formData => {
-      let name = RemixHelpers.getFormValue(formData, "name")
-      let content = RemixHelpers.getFormValue(formData, "content")
+      let name = RemixHelpers.FormData.getStringValue(formData, "name")
+      let content = RemixHelpers.FormData.getStringValue(formData, "content")
 
       switch (name, content) {
       | (Some(name), Some(content)) => {
           let fields: fields = {
             name: name,
+            content: content,
           }
 
           let fieldErrors: fieldErrors = {
@@ -63,8 +64,8 @@ let action: Remix.actionFunctionForResponse = ({request}) => {
           }
 
           if fieldErrors == {name: None, content: None} {
-            {Model.Jokes.name: name, content: content, id: name, jokesterId: userId}
-            ->Model.Jokes.create
+            {Db.Jokes.name: name, content: content, jokesterId: userId}
+            ->Db.Jokes.create
             ->Promise.thenResolve(joke => Remix.redirect(`/jokes/${joke.id}`))
           } else {
             Remix.json({
@@ -167,7 +168,6 @@ let catchBoundary: Remix.catchBoundaryComponent = () => {
 }
 %%raw(`export const CatchBoundary = catchBoundary`)
 
-// errorBoundary
 let errorBoundary: Remix.errorBoundaryComponent = ({error}) => {
   Js.log(error)
 

@@ -2,10 +2,10 @@
 
 let links = () => [{"rel": "stylesheet", "href": %raw(`stylesUrl`)}]
 
-type loaderData = {jokeListItems: array<Model.Jokes.t>, user: option<Model.Users.t>}
+type loaderData = {jokeListItems: array<Db.Jokes.t>, user: option<Db.Users.t>}
 
 let loader: Remix.loaderFunction<loaderData> = ({request}) => {
-  Promise.all2((request->Session.getUser, Model.Jokes.getLatest()))->Promise.thenResolve(((
+  Promise.all2((request->Session.getUser, Db.Jokes.getLatest()))->Promise.thenResolve(((
     user,
     jokes,
   )) => {
