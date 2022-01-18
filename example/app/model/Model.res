@@ -54,6 +54,11 @@ module Jokes = {
     ->Js.Math.floor_int
     ->Belt.Array.get(jokes.contents, _)
     ->Js.Promise.resolve
+  let create = (joke: t) => {
+    let newJokes = jokes.contents->Js.Array2.concat([joke])
+    jokes := newJokes
+    joke->Promise.resolve
+  }
   let deleteById = (jokeId: string): Promise.t<unit> => {
     let newJokes = jokes.contents->Js.Array2.filter(joke => joke.id != jokeId)
     jokes := newJokes

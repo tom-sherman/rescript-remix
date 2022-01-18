@@ -33,24 +33,13 @@ type actionData = {
   fields: option<fields>,
 }
 
-let getFormValue = (formData: Webapi.FormData.t, fieldName: string): option<string> => {
-  formData
-  ->Webapi.Fetch.FormData.get(fieldName)
-  ->Belt.Option.flatMap(value =>
-    switch value->Webapi.Fetch.FormData.EntryValue.classify {
-    | #String(value) => Some(value)
-    | _ => None
-    }
-  )
-}
-
 let action: Remix.actionFunctionForResponse = ({request}) => {
   request
   ->Webapi.Fetch.Request.formData
   ->Promise.then(formData => {
-    let loginType = getFormValue(formData, "loginType")
-    let username = getFormValue(formData, "username")
-    let password = getFormValue(formData, "password")
+    let loginType = RemixHelpers.getFormValue(formData, "loginType")
+    let username = RemixHelpers.getFormValue(formData, "username")
+    let password = RemixHelpers.getFormValue(formData, "password")
 
     switch (loginType, username, password) {
     | (Some(loginType), Some(username), Some(password)) => {
