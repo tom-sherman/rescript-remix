@@ -21,6 +21,7 @@ let loader: Remix.loaderFunctionForResponse = ({request, params}) => {
     userId,
     joke,
   )) => {
+    Js.log(joke)
     switch joke {
     | Some(joke) =>
       Remix.jsonWithInit(

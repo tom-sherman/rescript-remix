@@ -3,13 +3,14 @@
       id: "abc-123",
       jokesterId: "drew",
       name: "javascript",
-      content: "Sometimes when I'm writing Javascript I want to throw up my hands and say \"this is stupid!\" but I can never remember what \"this\" refers to.",
+      content: "Sometimes when I'm writing Javascript I want to throw up my hands and say \"this is awful!\" but I can never remember what \"this\" refers to.",
+      createdAt: new Date()
     },
   ]`)
 
 module Jokes = {
   type new_t = {jokesterId: string, name: string, content: string}
-  type t = {id: string, jokesterId: string, name: string, content: string}
+  type t = {id: string, jokesterId: string, name: string, content: string, createdAt: Js.Date.t}
   @scope("global") @val external jokes: array<t> = "jokes"
 
   let getById = (jokeId: string): Promise.t<option<t>> =>
@@ -23,10 +24,11 @@ module Jokes = {
     ->Js.Promise.resolve
   let create = (joke: new_t) => {
     let newJoke: t = {
-      id: (Js.Math.random() *. 99999.)->Js.Math.floor_int->Js.Int.toString,
+      id: Random.int(99999)->Js.Int.toString,
       name: joke.name,
       content: joke.content,
       jokesterId: joke.jokesterId,
+      createdAt: Js.Date.make(),
     }
     jokes->Js.Array2.push(newJoke)->ignore
     newJoke->Promise.resolve
@@ -44,6 +46,7 @@ module Users = {
   type t = {username: string, password: string}
   @scope("global") @val external users: array<t> = "users"
 
+  let getAll = (): Promise.t<array<t>> => users->Promise.resolve
   let getByUsername = (username: string): Promise.t<option<t>> =>
     users->Js.Array2.find(user => user.username == username)->Promise.resolve
   let create = (user: t): Js.Promise.t<unit> =>

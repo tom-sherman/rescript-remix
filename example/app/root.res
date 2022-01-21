@@ -16,9 +16,9 @@ let links = () => (
   },
 )
 
-let meta = () => {
+let meta: Remix.metaFunction<unit> = _ => {
   let description = `Learn Remix and laugh at the same time!`
-  {
+  Remix.HtmlMetaDescriptor.make({
     "viewport": "width=device-width,initial-scale=1",
     "description": description,
     "keywords": "Remix,jokes",
@@ -28,7 +28,7 @@ let meta = () => {
     "twitter:site": "@remix_run",
     "twitter:title": "Remix Jokes",
     "twitter:description": description,
-  }
+  })
 }
 
 module Document = {

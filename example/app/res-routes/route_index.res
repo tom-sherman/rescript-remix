@@ -21,7 +21,7 @@ let headers: Remix.headersFunction = _ =>
 let default = () => {
   <div className="container">
     <div className="content">
-      <h1> {"Remix"->React.string} <span> {"Jokes!"->React.string} </span> </h1>
+      <h1> {"Rescript"->React.string} <span> {"Jokes!"->React.string} </span> </h1>
       <nav>
         <ul>
           <li> <Remix.Link to="jokes"> {"Read Jokes"->React.string} </Remix.Link> </li>
