@@ -16,7 +16,7 @@ let meta: Remix.metaFunction<loaderData> = ({data}) => {
 }
 
 let loader: Remix.loaderFunctionForResponse = ({request, params}) => {
-  let jokeId = params->Js.Dict.unsafeGet("jokeId")
+  let jokeId = params->Js.Dict.get("jokeId")->Belt.Option.getExn
   Promise.all2((request->Session.getUserId, jokeId->Db.Jokes.getById))->Promise.then(((
     userId,
     joke,
@@ -59,7 +59,7 @@ let action: Remix.actionFunctionForResponse = ({request, params}) => {
   let method = request->Webapi.Fetch.Request.method_
   switch method {
   | Delete => {
-      let jokeId = params->Js.Dict.get("jokeId")->Belt.Option.getUnsafe
+      let jokeId = params->Js.Dict.get("jokeId")->Belt.Option.getExn
       Promise.all2((request->Session.requireUserId, jokeId->Db.Jokes.getById))->Promise.then(((
         userId,
         joke,
@@ -102,15 +102,14 @@ let catchBoundary: Remix.catchBoundaryComponent = () => {
   let params = Remix.useParams()
 
   let status = caught->Webapi.Fetch.Response.status
+  let jokeId = params->Js.Dict.get("jokeId")->Belt.Option.getExn
 
   switch status {
   | 404 =>
-    <div className="error-container">
-      {`Huh? What the heck is ${params->Js.Dict.unsafeGet("jokeId")}?`->React.string}
-    </div>
+    <div className="error-container"> {`Huh? What the heck is ${jokeId}?`->React.string} </div>
   | 401 =>
     <div className="error-container">
-      {`Sorry, but ${params->Js.Dict.unsafeGet("jokeId")} is not your joke.`->React.string}
+      {`Sorry, but ${jokeId} is not your joke.`->React.string}
     </div>
   | _ => Js.Exn.raiseError(`Unhandled error: ${status->Js.Int.toString}`)
   }
@@ -120,7 +119,7 @@ let catchBoundary: Remix.catchBoundaryComponent = () => {
 let errorBoundary: Remix.errorBoundaryComponent = ({error}) => {
   Js.log(error)
   let params = Remix.useParams()
-  let jokeId = params->Js.Dict.get("jokeId")->Belt.Option.getUnsafe
+  let jokeId = params->Js.Dict.get("jokeId")->Belt.Option.getExn
 
   <div> {`There was an error loading joke by the id ${jokeId}. Sorry.`->React.string} </div>
 }

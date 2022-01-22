@@ -38,6 +38,11 @@ type actionData = {
   fieldErrors: option<fieldErrors>,
   fields: option<fields>,
 }
+let makeActionData = (~formError=?, ~fieldErrors=?, ~fields=?, ()): actionData => {
+  formError: formError,
+  fieldErrors: fieldErrors,
+  fields: fields,
+}
 
 let action: Remix.actionFunctionForResponse = ({request}) => {
   request
@@ -61,21 +66,17 @@ let action: Remix.actionFunctionForResponse = ({request}) => {
         }
 
         if fieldErrors != {username: None, password: None} {
-          {formError: None, fieldErrors: Some(fieldErrors), fields: Some(fields)}
-          ->Remix.json
-          ->Promise.resolve
+          makeActionData(~fieldErrors, ~fields, ())->Remix.json->Promise.resolve
         } else {
           switch loginType {
           | "login" =>
-            Session.login({username: username, password: password})->Promise.then(user =>
+            {username: username, password: password}
+            ->Session.login
+            ->Promise.then(user =>
               switch user {
               | Some(user) => Session.createUserSession(user.username, "/jokes")
               | None =>
-                {
-                  formError: Some("Username/Password combination is incorrect"),
-                  fieldErrors: None,
-                  fields: Some(fields),
-                }
+                makeActionData(~formError="Username/Password combination is incorrect", ~fields, ())
                 ->Remix.json
                 ->Promise.resolve
               }
@@ -84,36 +85,30 @@ let action: Remix.actionFunctionForResponse = ({request}) => {
             Db.Users.getByUsername(username)->Promise.then(existingUser => {
               switch existingUser {
               | Some(_) =>
-                {
-                  formError: Some(`User with username ${username} already exists`),
-                  fieldErrors: None,
-                  fields: Some(fields),
-                }
+                makeActionData(
+                  ~formError=`User with username ${username} already exists`,
+                  ~fields,
+                  (),
+                )
                 ->Remix.json
                 ->Promise.resolve
               | None =>
-                {Db.Users.username: username, password: password}
-                ->Db.Users.create
+                {username: username, password: password}
+                ->Session.register
                 ->Promise.then(_ => {
                   Session.createUserSession(username, "/jokes")
                 })
               }
             })
           | _ =>
-            {
-              formError: Some("Login type invalid"),
-              fieldErrors: None,
-              fields: Some(fields),
-            }
+            makeActionData(~formError="Login type invalid", ~fields, ())
             ->Remix.json
             ->Promise.resolve
           }
         }
       }
     | _ =>
-      {formError: Some("Form not submitted correctly."), fieldErrors: None, fields: None}
-      ->Remix.json
-      ->Promise.resolve
+      makeActionData(~formError="Form not submitted correctly.", ())->Remix.json->Promise.resolve
     }
   })
 }

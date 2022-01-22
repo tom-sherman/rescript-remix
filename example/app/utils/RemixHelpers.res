@@ -24,3 +24,8 @@ module FormData = {
     )
   }
 }
+
+module Bcrypt = {
+  @module("bcryptjs") external hash: string => string = "hashSync"
+  @module("bcryptjs") external compare: (string, string) => bool = "compareSync"
+}

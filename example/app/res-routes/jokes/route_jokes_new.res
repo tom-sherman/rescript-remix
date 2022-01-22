@@ -40,6 +40,11 @@ type actionData = {
   fieldErrors: option<fieldErrors>,
   fields: option<fields>,
 }
+let makeActionData = (~formError=?, ~fieldErrors=?, ~fields=?, ()) => {
+  formError: formError,
+  fieldErrors: fieldErrors,
+  fields: fields,
+}
 
 let action: Remix.actionFunctionForResponse = ({request}) => {
   request
@@ -68,19 +73,10 @@ let action: Remix.actionFunctionForResponse = ({request}) => {
             ->Db.Jokes.create
             ->Promise.thenResolve(joke => Remix.redirect(`/jokes/${joke.id}`))
           } else {
-            Remix.json({
-              formError: None,
-              fieldErrors: Some(fieldErrors),
-              fields: Some(fields),
-            })->Promise.resolve
+            makeActionData(~fieldErrors, ~fields, ())->Remix.json->Promise.resolve
           }
         }
-      | _ =>
-        Remix.json({
-          formError: Some("Form not submitted correctly"),
-          fieldErrors: None,
-          fields: None,
-        })->Promise.resolve
+      | _ => makeActionData(~formError="Form not submitted correctly")->Remix.json->Promise.resolve
       }
     })
   })

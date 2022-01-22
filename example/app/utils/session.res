@@ -1,21 +1,18 @@
 type loginForm = {username: string, password: string}
 
 let register = ({username, password}): Promise.t<unit> =>
-  {Db.Users.username: username, password: password}->Db.Users.create
+  {
+    Db.Users.username: username,
+    passwordHash: password->RemixHelpers.Bcrypt.hash,
+  }->Db.Users.create
 
 let login = ({username, password}): Promise.t<option<Db.Users.t>> =>
   username
   ->Db.Users.getByUsername
   ->Promise.thenResolve(user =>
-    switch user {
-    | None => None
-    | Some(user) =>
-      if user.password == password {
-        Some(user)
-      } else {
-        None
-      }
-    }
+    user->Belt.Option.flatMap(user =>
+      password->RemixHelpers.Bcrypt.compare(user.passwordHash) ? Some(user) : None
+    )
   )
 
 let sessionSecret = "very_secret"

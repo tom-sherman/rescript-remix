@@ -8,7 +8,7 @@ let init = () => {
       createdAt: new Date()
     },
   ]`)->ignore
-  %raw(`global.users = global.users || [{ username: "drew", password: "password" }]`)->ignore
+  %raw(`global.users = global.users || [{ username: "drew", passwordHash: /* "password" */ "$2b$10$1r2h5mpCHm4trowRV6zCzO86pFDFlmQXLnPqQROrxtgYPAdOaJ.32" }]`)->ignore
 }
 
 module Jokes = {
@@ -44,7 +44,7 @@ module Jokes = {
 }
 
 module Users = {
-  type t = {username: string, password: string}
+  type t = {username: string, passwordHash: string}
   @scope("global") @val external users: array<t> = "users"
 
   let getAll = (): Promise.t<array<t>> => users->Promise.resolve
