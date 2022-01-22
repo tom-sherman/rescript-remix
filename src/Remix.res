@@ -111,6 +111,77 @@ module HtmlMetaDescriptor = {
 }
 type metaFunction<'appData> = metaFunctionArgs<'appData> => HtmlMetaDescriptor.t
 
+module HtmlLinkDescriptor = {
+  type t
+
+  @obj
+  external make: (
+    ~href: string,
+    ~crossOrigin: [#anonymous | #"use-credentials"]=?,
+    ~rel: [
+      | #alternate
+      | #"dns-prefetch"
+      | #icon
+      | #manifest
+      | #modulepreload
+      | #next
+      | #pingback
+      | #preconnect
+      | #prefetch
+      | #preload
+      | #prerender
+      | #search
+      | #stylesheet
+    ],
+    ~media: string=?,
+    ~integrity: string=?,
+    ~hrefLang: string=?,
+    @as("type") ~type_: string=?,
+    ~referrerPolicy: [
+      | #"no-referrer"
+      | #"no-referrer-when-downgrade"
+      | #"same-origin"
+      | #origin
+      | #"strict-origin"
+      | #"origin-when-cross-origin"
+      | #"strict-origin-when-cross-origin"
+      | #"unsafe-url"
+    ]=?,
+    ~sizes: string=?,
+    ~imagesrcset: string=?,
+    ~imagesizes: string=?,
+    @as("as")
+    ~as_: [
+      | #audio
+      | #audioworklet
+      | #document
+      | #embed
+      | #fetch
+      | #font
+      | #frame
+      | #iframe
+      | #image
+      | #manifest
+      | #object
+      | #paintworklet
+      | #report
+      | #script
+      | #serviceworker
+      | #sharedworker
+      | #style
+      | #track
+      | #video
+      | #worker
+      | #xslt
+    ]=?,
+    ~color: string=?,
+    ~disabled: bool=?,
+    ~title: string=?,
+    unit,
+  ) => t = ""
+}
+type linksFunction = unit => array<HtmlLinkDescriptor.t>
+
 type headersFunctionArgs = {
   loaderHeaders: Webapi.Fetch.Headers.t,
   parentHeaders: Webapi.Fetch.Headers.t,

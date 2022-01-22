@@ -2,19 +2,21 @@
 %%raw(`import globalMediumStylesUrl from "./styles/global-medium.css"`)
 %%raw(`import globalLargeStylesUrl from "./styles/global-large.css"`)
 
-let links = () => (
-  {"rel": "stylesheet", "href": %raw(`globalStylesUrl`)},
-  {
-    "rel": "stylesheet",
-    "href": %raw(`globalMediumStylesUrl`),
-    "media": "print, (min-width: 640px)",
-  },
-  {
-    "rel": "stylesheet",
-    "href": %raw(`globalLargeStylesUrl`),
-    "media": "print, (min-width: 1024px)",
-  },
-)
+let links: Remix.linksFunction = () => [
+  Remix.HtmlLinkDescriptor.make(~rel=#stylesheet, ~href=%raw(`globalStylesUrl`), ()),
+  Remix.HtmlLinkDescriptor.make(
+    ~rel=#stylesheet,
+    ~href=%raw(`globalMediumStylesUrl`),
+    ~media="print, (min-width: 640px)",
+    (),
+  ),
+  Remix.HtmlLinkDescriptor.make(
+    ~rel=#stylesheet,
+    ~href=%raw(`globalLargeStylesUrl`),
+    ~media="print, (min-width: 1024px)",
+    (),
+  ),
+]
 
 let meta: Remix.metaFunction<unit> = _ => {
   let description = `Learn Remix and laugh at the same time!`

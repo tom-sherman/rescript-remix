@@ -1,6 +1,8 @@
 %%raw(`import stylesUrl from "../styles/jokes.css"`)
 
-let links = () => [{"rel": "stylesheet", "href": %raw(`stylesUrl`)}]
+let links: Remix.linksFunction = () => [
+  Remix.HtmlLinkDescriptor.make(~rel=#stylesheet, ~href=%raw(`stylesUrl`), ()),
+]
 
 type loaderData = {jokeListItems: array<Db.Jokes.t>, user: option<Db.Users.t>}
 

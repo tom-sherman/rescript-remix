@@ -6,7 +6,9 @@ let meta: Remix.metaFunction<unit> = _ =>
     "description": "Login to submit your own jokes to Remix Jokes!",
   })
 
-let links = () => [{"rel": "stylesheet", "href": %raw(`stylesUrl`)}]
+let links: Remix.linksFunction = () => [
+  Remix.HtmlLinkDescriptor.make(~rel=#stylesheet, ~href=%raw(`stylesUrl`), ()),
+]
 
 let headers: Remix.headersFunction = _ =>
   Webapi.Fetch.Headers.makeWithInit(
