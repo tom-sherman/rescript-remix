@@ -1,4 +1,5 @@
-%%raw(`global.jokes = global.jokes || [
+let init = () => {
+  %raw(`global.jokes = global.jokes || [
     {
       id: "abc-123",
       jokesterId: "drew",
@@ -6,7 +7,9 @@
       content: "Sometimes when I'm writing Javascript I want to throw up my hands and say \"this is awful!\" but I can never remember what \"this\" refers to.",
       createdAt: new Date()
     },
-  ]`)
+  ]`)->ignore
+  %raw(`global.users = global.users || [{ username: "drew", password: "password" }]`)->ignore
+}
 
 module Jokes = {
   type new_t = {jokesterId: string, name: string, content: string}
@@ -39,8 +42,6 @@ module Jokes = {
     Promise.resolve()
   }
 }
-
-%%raw(`global.users = global.users || [{ username: "drew", password: "password" }]`)
 
 module Users = {
   type t = {username: string, password: string}

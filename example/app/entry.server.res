@@ -1,3 +1,5 @@
+Db.init()
+
 let default = (request, responseStatusCode, responseHeaders, remixContext) => {
   open Webapi
 
