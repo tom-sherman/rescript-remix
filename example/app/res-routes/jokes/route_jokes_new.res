@@ -1,6 +1,8 @@
 type loaderData = unit
 
 let loader: Remix.loaderFunctionForResponse = ({request}) => {
+  open Webapi.Fetch
+
   request
   ->Session.getUserId
   ->Promise.then(userId => {
@@ -8,10 +10,7 @@ let loader: Remix.loaderFunctionForResponse = ({request}) => {
     | Some(_) => Remix.json(Js.Obj.empty())->Promise.resolve
     | None =>
       RemixHelpers.Promise.rejectResponse(
-        Webapi.Fetch.Response.makeWithInit(
-          "Unauthorized",
-          Webapi.Fetch.ResponseInit.make(~status=401, ()),
-        ),
+        Response.makeWithInit("Unauthorized", ResponseInit.make(~status=401, ())),
       )
     }
   })

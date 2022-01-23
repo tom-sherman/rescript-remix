@@ -10,14 +10,17 @@ let links: Remix.linksFunction = () => [
   Remix.HtmlLinkDescriptor.make(~rel=#stylesheet, ~href=%raw(`stylesUrl`), ()),
 ]
 
-let headers: Remix.headersFunction = _ =>
-  Webapi.Fetch.Headers.makeWithInit(
-    Webapi.Fetch.HeadersInit.make({
+let headers: Remix.headersFunction = _ => {
+  open Webapi.Fetch
+
+  Headers.makeWithInit(
+    HeadersInit.make({
       "Cache-Control": `public, max-age=${(60 * 10)->Js.Int.toString}, s-maxage=${(60 *
         60 *
         24 * 30)->Js.Int.toString}`,
     }),
   )
+}
 
 let validateUsername = (username: string) =>
   if username->Js.String2.length < 3 {

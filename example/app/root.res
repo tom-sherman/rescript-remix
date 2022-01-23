@@ -58,13 +58,15 @@ module Document = {
 let default = () => <Document title="Remix: So great, it's funny!"> <Remix.Outlet /> </Document>
 
 let catchBoundary: Remix.catchBoundaryComponent = () => {
-  open Webapi.Fetch.Response
+  open Webapi.Fetch
 
   let caught = Remix.useCatch()
 
-  <Document title={`${caught->status->Js.Int.toString} ${caught->statusText}`}>
+  <Document title={`${caught->Response.status->Js.Int.toString} ${caught->Response.statusText}`}>
     <div className="error-container">
-      <h1> {`${caught->status->Js.Int.toString} ${caught->statusText}`->React.string} </h1>
+      <h1>
+        {`${caught->Response.status->Js.Int.toString} ${caught->Response.statusText}`->React.string}
+      </h1>
     </div>
   </Document>
 }

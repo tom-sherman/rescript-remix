@@ -16,6 +16,8 @@ let meta: Remix.metaFunction<loaderData> = ({data}) => {
 }
 
 let loader: Remix.loaderFunctionForResponse = ({request, params}) => {
+  open Webapi.Fetch
+
   let jokeId = params->Js.Dict.get("jokeId")->Belt.Option.getExn
   Promise.all2((request->Session.getUserId, jokeId->Db.Jokes.getById))->Promise.then(((
     userId,
@@ -25,8 +27,8 @@ let loader: Remix.loaderFunctionForResponse = ({request, params}) => {
     | Some(joke) =>
       Remix.jsonWithInit(
         {"joke": joke, "isOwner": userId == Some(joke.jokesterId)},
-        Webapi.Fetch.ResponseInit.make(
-          ~headers=Webapi.Fetch.HeadersInit.make({
+        ResponseInit.make(
+          ~headers=HeadersInit.make({
             "Cache-Control": `public, max-age=${(60 * 5)->Js.Int.toString}, s-maxage=${(60 *
               60 * 24)->Js.Int.toString}`,
             "Vary": "Cookie",
@@ -36,28 +38,28 @@ let loader: Remix.loaderFunctionForResponse = ({request, params}) => {
       )->Promise.resolve
     | None =>
       RemixHelpers.Promise.rejectResponse(
-        Webapi.Fetch.Response.makeWithInit(
-          "What a joke! Not found.",
-          Webapi.Fetch.ResponseInit.make(~status=404, ()),
-        ),
+        Response.makeWithInit("What a joke! Not found.", ResponseInit.make(~status=404, ())),
       )
     }
   })
 }
 
-let headers: Remix.headersFunction = ({loaderHeaders}) =>
-  Webapi.Fetch.Headers.makeWithInit(
-    Webapi.Fetch.HeadersInit.make({
-      "Cache-Control": loaderHeaders
-      ->Webapi.Fetch.Headers.get("Cache-Control")
-      ->Belt.Option.getWithDefault(""),
-      "Vary": loaderHeaders->Webapi.Fetch.Headers.get("Vary")->Belt.Option.getWithDefault(""),
+let headers: Remix.headersFunction = ({loaderHeaders}) => {
+  open Webapi.Fetch
+
+  Headers.makeWithInit(
+    HeadersInit.make({
+      "Cache-Control": loaderHeaders->Headers.get("Cache-Control")->Belt.Option.getWithDefault(""),
+      "Vary": loaderHeaders->Headers.get("Vary")->Belt.Option.getWithDefault(""),
     }),
   )
+}
 
 let action: Remix.actionFunctionForResponse = ({request, params}) => {
+  open Webapi.Fetch
+
   request
-  ->Webapi.Fetch.Request.formData
+  ->Request.formData
   ->Promise.thenResolve(formData =>
     formData->RemixHelpers.FormData.getStringValue("_method")->Belt.Option.getExn
   )
@@ -72,17 +74,17 @@ let action: Remix.actionFunctionForResponse = ({request, params}) => {
           switch joke {
           | None =>
             RemixHelpers.Promise.rejectResponse(
-              Webapi.Fetch.Response.makeWithInit(
+              Response.makeWithInit(
                 "Can't delete what does not exist",
-                Webapi.Fetch.ResponseInit.make(~status=404, ()),
+                ResponseInit.make(~status=404, ()),
               ),
             )
           | Some(joke) =>
             if joke.jokesterId != userId {
               RemixHelpers.Promise.rejectResponse(
-                Webapi.Fetch.Response.makeWithInit(
+                Response.makeWithInit(
                   "Pssh, nice try. That's not your joke",
-                  Webapi.Fetch.ResponseInit.make(~status=401, ()),
+                  ResponseInit.make(~status=401, ()),
                 ),
               )
             } else {

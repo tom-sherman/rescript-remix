@@ -1,15 +1,14 @@
 type loaderData = {randomJoke: Db.Jokes.t}
 
 let loader: Remix.loaderFunction<loaderData> = _ => {
+  open Webapi.Fetch
+
   Db.Jokes.getRandom()->Promise.then(joke =>
     switch joke {
     | Some(joke) => Promise.resolve({randomJoke: joke})
     | None =>
       RemixHelpers.Promise.rejectResponse(
-        Webapi.Fetch.Response.makeWithInit(
-          "No random joke found",
-          Webapi.Fetch.ResponseInit.make(~status=404, ()),
-        ),
+        Response.makeWithInit("No random joke found", ResponseInit.make(~status=404, ())),
       )
     }
   )
@@ -29,19 +28,19 @@ let default = () => {
 }
 
 let catchBoundary: Remix.catchBoundaryComponent = () => {
+  open Webapi.Fetch
+
   let caught = Remix.useCatch()
   Js.log(caught)
 
-  if caught->Webapi.Fetch.Response.status == 404 {
+  if caught->Response.status == 404 {
     <div className="error-container">
       <p> {"There are no jokes to display."->React.string} </p>
       <Remix.Link to="new"> {"Add your own"->React.string} </Remix.Link>
     </div>
   } else {
     Js.Exn.raiseError(
-      `Unexpected caught response with status: ${caught
-        ->Webapi.Fetch.Response.status
-        ->Js.Int.toString}`,
+      `Unexpected caught response with status: ${caught->Response.status->Js.Int.toString}`,
     )
   }
 }

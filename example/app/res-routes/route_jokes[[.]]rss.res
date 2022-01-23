@@ -1,7 +1,8 @@
 let loader: Remix.loaderFunctionForResponse = ({request}) => {
+  open Webapi.Fetch
+
   Promise.all2((Db.Users.getAll(), Db.Jokes.getAll()))->Promise.then(((users, jokes)) => {
-    let host =
-      request->Webapi.Fetch.Request.headers->Webapi.Fetch.Headers.get("host")->Belt.Option.getExn
+    let host = request->Request.headers->Headers.get("host")->Belt.Option.getExn
     let domain = `http://${host}`
     let jokesUrl = `${domain}/jokes`
 
@@ -35,10 +36,10 @@ let loader: Remix.loaderFunctionForResponse = ({request}) => {
       </rss>
     `->Js.String2.trim
 
-    Webapi.Fetch.Response.makeWithInit(
+    Response.makeWithInit(
       rssString,
-      Webapi.Fetch.ResponseInit.make(
-        ~headers=Webapi.Fetch.HeadersInit.make({
+      ResponseInit.make(
+        ~headers=HeadersInit.make({
           "Cache-Control": `public, max-age=${(60 * 10)->Js.Int.toString}, s-maxage=${(60 * 60 * 24)
               ->Js.Int.toString}`,
           "Content-Type": "application/xml",
