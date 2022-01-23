@@ -56,38 +56,44 @@ let headers: Remix.headersFunction = ({loaderHeaders}) =>
   )
 
 let action: Remix.actionFunctionForResponse = ({request, params}) => {
-  let method = request->Webapi.Fetch.Request.method_
-  switch method {
-  | Delete => {
-      let jokeId = params->Js.Dict.get("jokeId")->Belt.Option.getExn
-      Promise.all2((request->Session.requireUserId, jokeId->Db.Jokes.getById))->Promise.then(((
-        userId,
-        joke,
-      )) => {
-        switch joke {
-        | None =>
-          RemixHelpers.Promise.rejectResponse(
-            Webapi.Fetch.Response.makeWithInit(
-              "Can't delete what does not exist",
-              Webapi.Fetch.ResponseInit.make(~status=404, ()),
-            ),
-          )
-        | Some(joke) =>
-          if joke.jokesterId != userId {
+  request
+  ->Webapi.Fetch.Request.formData
+  ->Promise.thenResolve(formData =>
+    formData->RemixHelpers.FormData.getStringValue("_method")->Belt.Option.getExn
+  )
+  ->Promise.then(method =>
+    switch method {
+    | "delete" => {
+        let jokeId = params->Js.Dict.get("jokeId")->Belt.Option.getExn
+        Promise.all2((request->Session.requireUserId, jokeId->Db.Jokes.getById))->Promise.then(((
+          userId,
+          joke,
+        )) => {
+          switch joke {
+          | None =>
             RemixHelpers.Promise.rejectResponse(
               Webapi.Fetch.Response.makeWithInit(
-                "Pssh, nice try. That's not your joke",
-                Webapi.Fetch.ResponseInit.make(~status=401, ()),
+                "Can't delete what does not exist",
+                Webapi.Fetch.ResponseInit.make(~status=404, ()),
               ),
             )
-          } else {
-            Db.Jokes.deleteById(jokeId)->Promise.thenResolve(() => Remix.redirect("/jokes"))
+          | Some(joke) =>
+            if joke.jokesterId != userId {
+              RemixHelpers.Promise.rejectResponse(
+                Webapi.Fetch.Response.makeWithInit(
+                  "Pssh, nice try. That's not your joke",
+                  Webapi.Fetch.ResponseInit.make(~status=401, ()),
+                ),
+              )
+            } else {
+              Db.Jokes.deleteById(jokeId)->Promise.thenResolve(() => Remix.redirect("/jokes"))
+            }
           }
-        }
-      })
+        })
+      }
+    | _ => Js.Exn.raiseError(`Don't know how to handle request`)
     }
-  | _ => Js.Exn.raiseError(`Don't know how to handle request`)
-  }
+  )
 }
 
 @react.component
