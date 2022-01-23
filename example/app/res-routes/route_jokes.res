@@ -24,7 +24,8 @@ let default = () => {
     <header className="jokes-header">
       <div className="container">
         <h1 className="home-link">
-          <Remix.Link to="/" title="Remix Jokes" ariaLabel="Remix Jokes">
+          // <Remix.Link to="/" title="Remix Jokes" ariaLabel="Remix Jokes">
+          <Remix.Link to="/" title="Remix Jokes">
             <span className="logo"> {`🤪`->React.string} </span>
             <span className="logo-medium"> {`J🤪KES`->React.string} </span>
           </Remix.Link>

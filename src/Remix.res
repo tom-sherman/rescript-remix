@@ -52,7 +52,6 @@ module Link = {
     ~children: React.element,
     ~className: string=?,
     ~title: string=?,
-    ~ariaLabel: string=?,
   ) => React.element = "Link"
 }
 
