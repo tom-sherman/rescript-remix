@@ -1,0 +1,29 @@
+diff --git a/node_modules/@remix-run/dev/compiler.js b/node_modules/@remix-run/dev/compiler.js
+index 5dc3ee5..d6daef3 100644
+--- a/node_modules/@remix-run/dev/compiler.js
++++ b/node_modules/@remix-run/dev/compiler.js
+@@ -348,8 +348,10 @@ async function createServerBuild(config, options) {
+       if (id === "./assets.json" && importer === "<stdin>") return true; // Mark all bare imports as external. They will be require()'d (or
+       // imported if ESM) at runtime from node_modules.
+ 
++
+       if (isBareModuleId(id)) {
+         let packageName = getNpmPackageName(id);
++        if (config.transpileModules.includes(packageName)) return false;
+ 
+         if (!/\bnode_modules\b/.test(importer) && !module$1.builtinModules.includes(packageName) && !dependencies$1.includes(packageName)) {
+           options.onWarning(`The path "${id}" is imported in ` + `${path__namespace.relative(process.cwd(), importer)} but ` + `${packageName} is not listed in your package.json dependencies. ` + `Did you forget to install it?`, packageName);
+diff --git a/node_modules/@remix-run/dev/config.js b/node_modules/@remix-run/dev/config.js
+index 9705888..398f3e6 100644
+--- a/node_modules/@remix-run/dev/config.js
++++ b/node_modules/@remix-run/dev/config.js
+@@ -135,7 +135,8 @@ async function readConfig(remixRoot, serverMode = serverModes.ServerMode.Product
+     serverMode,
+     serverModuleFormat,
+     serverPlatform,
+-    mdx
++    mdx,
++    transpileModules: appConfig.transpileModules || [],
+   };
+ }
+ 
