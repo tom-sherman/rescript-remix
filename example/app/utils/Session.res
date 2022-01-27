@@ -44,11 +44,11 @@ let {
 let getUserSession = (request: Webapi.Fetch.Request.t): Promise.t<Remix.Session.t> =>
   getSession(. request->Webapi.Fetch.Request.headers->Webapi.Fetch.Headers.get("Cookie"))
 
-let getUserId = (request: Webapi.Fetch.Request.t): Js.Promise.t<option<string>> => {
+let getUserId = (request: Webapi.Fetch.Request.t): Promise.t<option<string>> => {
   request->getUserSession->Promise.thenResolve(session => session->Remix.Session.get("userId"))
 }
 
-let requireUserId = (request: Webapi.Fetch.Request.t): Js.Promise.t<string> => {
+let requireUserId = (request: Webapi.Fetch.Request.t): Promise.t<string> => {
   request
   ->getUserSession
   ->Promise.then(session =>
