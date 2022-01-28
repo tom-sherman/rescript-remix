@@ -11,7 +11,7 @@ let init = () => {
       id: "def-456",
       jokesterId: "drew",
       name: "batman",
-      content: "console.log(new Array(5).join(\"a\"-10) + \" Batman!\")",
+      content: "new Array(5).join(\"a\"-10) + \" Batman!\"",
       createdAt: Date.now()
     },
   ]`)->ignore
@@ -32,8 +32,9 @@ module Jokes = {
   let getAll = (): Promise.t<array<Model.Joke.t>> => jokes->Promise.resolve
   let getLatest = (): Promise.t<array<Model.Joke.t>> =>
     jokes->Belt.Array.slice(~offset=0, ~len=5)->Promise.resolve
-  let getRandom = (): Promise.t<option<Model.Joke.t>> =>
-    jokes->Js.Array2.length->Random.int->Belt.Array.get(jokes, _)->Promise.resolve
+  let getRandom = (): Promise.t<option<Model.Joke.t>> => {
+    jokes->Js.Array2.length->Js.Math.random_int(0, _)->Belt.Array.get(jokes, _)->Promise.resolve
+  }
   let create = (joke: new_t): Promise.t<Model.Joke.t> => {
     let newJoke: Model.Joke.t = {
       id: Random.int(99999)->Js.Int.toString,
