@@ -1,7 +1,10 @@
 let loader: Remix.loaderFunction = ({request}) => {
   open Webapi.Fetch
 
-  Promise.all2((Db.Users.getAll(), Db.Jokes.getAll()))->Promise.then(((users, jokes)) => {
+  Promise.all2((Db.Users.getAll(), Db.Jokes.getAll()))->Promise.then(((
+    users,
+    jokes,
+  )) => {
     let host = request->Request.headers->Headers.get("host")->Belt.Option.getExn
     let domain = `http://${host}`
     let jokesUrl = `${domain}/jokes`

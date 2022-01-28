@@ -54,11 +54,11 @@ module Jokes = {
 }
 
 module Users = {
-  @scope("global") @val external users: array<Model.User.t> = "users"
+  type t = {username: string, passwordHash: Bcrypt.hash}
+  @scope("global") @val external users: array<t> = "users"
 
-  let getAll = (): Promise.t<array<Model.User.t>> => users->Promise.resolve
-  let getByUsername = (username: string): Promise.t<option<Model.User.t>> =>
+  let getAll = (): Promise.t<array<t>> => users->Promise.resolve
+  let getByUsername = (username: string): Promise.t<option<t>> =>
     users->Js.Array2.find(user => user.username == username)->Promise.resolve
-  let create = (user: Model.User.t): Promise.t<unit> =>
-    user->Js.Array2.push(users, _)->ignore->Promise.resolve
+  let create = (user: t): Promise.t<unit> => user->Js.Array2.push(users, _)->ignore->Promise.resolve
 }

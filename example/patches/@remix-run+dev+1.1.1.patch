@@ -1,7 +1,16 @@
 diff --git a/node_modules/@remix-run/dev/compiler.js b/node_modules/@remix-run/dev/compiler.js
-index 5dc3ee5..d6daef3 100644
+index 5dc3ee5..638ec7e 100644
 --- a/node_modules/@remix-run/dev/compiler.js
 +++ b/node_modules/@remix-run/dev/compiler.js
+@@ -313,7 +313,7 @@ async function createBrowserBuild(config, options) {
+     define: {
+       "process.env.NODE_ENV": JSON.stringify(options.mode)
+     },
+-    plugins: [mdx.mdxPlugin(config), browserRouteModulesPlugin(config, /\?browser$/), emptyModulesPlugin(config, /\.server(\.[jt]sx?)?$/)]
++    plugins: [mdx.mdxPlugin(config), browserRouteModulesPlugin(config, /\?browser$/), emptyModulesPlugin(config, config.serverModuleMatch || /\.server(\.[jt]sx?)?$/)]
+   });
+ }
+ 
 @@ -348,8 +348,10 @@ async function createServerBuild(config, options) {
        if (id === "./assets.json" && importer === "<stdin>") return true; // Mark all bare imports as external. They will be require()'d (or
        // imported if ESM) at runtime from node_modules.
@@ -14,16 +23,17 @@ index 5dc3ee5..d6daef3 100644
          if (!/\bnode_modules\b/.test(importer) && !module$1.builtinModules.includes(packageName) && !dependencies$1.includes(packageName)) {
            options.onWarning(`The path "${id}" is imported in ` + `${path__namespace.relative(process.cwd(), importer)} but ` + `${packageName} is not listed in your package.json dependencies. ` + `Did you forget to install it?`, packageName);
 diff --git a/node_modules/@remix-run/dev/config.js b/node_modules/@remix-run/dev/config.js
-index 9705888..398f3e6 100644
+index 9705888..290e197 100644
 --- a/node_modules/@remix-run/dev/config.js
 +++ b/node_modules/@remix-run/dev/config.js
-@@ -135,7 +135,8 @@ async function readConfig(remixRoot, serverMode = serverModes.ServerMode.Product
+@@ -135,7 +135,9 @@ async function readConfig(remixRoot, serverMode = serverModes.ServerMode.Product
      serverMode,
      serverModuleFormat,
      serverPlatform,
 -    mdx
 +    mdx,
 +    transpileModules: appConfig.transpileModules || [],
++    serverModuleMatch: appConfig.serverModuleMatch
    };
  }
  

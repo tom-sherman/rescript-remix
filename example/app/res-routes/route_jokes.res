@@ -8,10 +8,10 @@ let links: Remix.linksFunction = () => [
 type loaderData = {jokeListItems: array<Model.Joke.t>, username: option<string>}
 
 let loader: Remix.loaderFunction = ({request}) => {
-  Promise.all2((request->Session.getUser, Db.Jokes.getLatest()))->Promise.thenResolve(((
-    user,
-    jokes,
-  )) =>
+  Promise.all2((
+    request->Session.getUser,
+    Db.Jokes.getLatest(),
+  ))->Promise.thenResolve(((user, jokes)) =>
     {
       username: user->Belt.Option.map(user => user.username),
       jokeListItems: jokes,

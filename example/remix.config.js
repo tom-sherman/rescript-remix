@@ -11,6 +11,7 @@ module.exports = {
   devServerPort: 8002,
   ignoredRouteFiles: [".*", "*.res"],
   transpileModules: ["rescript", "rescript-webapi", "decco"],
+  serverModuleMatch: /(\/server\/|server\.js$)/i,
   routes(defineRoutes) {
     return defineRoutes(route => {
       registerRoutes(route);
