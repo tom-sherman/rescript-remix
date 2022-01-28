@@ -7,6 +7,13 @@ let init = () => {
       content: "Sometimes when I'm writing Javascript I want to throw up my hands and say \"this is awful!\" but I can never remember what \"this\" refers to.",
       createdAt: Date.now()
     },
+    {
+      id: "def-456",
+      jokesterId: "drew",
+      name: "batman",
+      content: "console.log(new Array(5).join(\"a\"-10) + \" Batman!\")",
+      createdAt: Date.now()
+    },
   ]`)->ignore
   %raw(`global.users = global.users || [
     {
@@ -18,18 +25,17 @@ let init = () => {
 
 module Jokes = {
   type new_t = {jokesterId: string, name: string, content: string}
-  @decco
-  type t = {id: string, jokesterId: string, name: string, content: string, createdAt: float}
-  @scope("global") @val external jokes: array<t> = "jokes"
+  @scope("global") @val external jokes: array<Model.Joke.t> = "jokes"
 
-  let getById = (jokeId: string): Promise.t<option<t>> =>
+  let getById = (jokeId: string): Promise.t<option<Model.Joke.t>> =>
     jokes->Js.Array2.find(joke => joke.id == jokeId)->Promise.resolve
-  let getAll = () => jokes->Promise.resolve
-  let getLatest = () => jokes->Belt.Array.slice(~offset=0, ~len=5)->Promise.resolve
-  let getRandom = (): Promise.t<option<t>> =>
+  let getAll = (): Promise.t<array<Model.Joke.t>> => jokes->Promise.resolve
+  let getLatest = (): Promise.t<array<Model.Joke.t>> =>
+    jokes->Belt.Array.slice(~offset=0, ~len=5)->Promise.resolve
+  let getRandom = (): Promise.t<option<Model.Joke.t>> =>
     jokes->Js.Array2.length->Random.int->Belt.Array.get(jokes, _)->Promise.resolve
-  let create = (joke: new_t) => {
-    let newJoke: t = {
+  let create = (joke: new_t): Promise.t<Model.Joke.t> => {
+    let newJoke: Model.Joke.t = {
       id: Random.int(99999)->Js.Int.toString,
       name: joke.name,
       content: joke.content,
@@ -47,11 +53,11 @@ module Jokes = {
 }
 
 module Users = {
-  type t = {username: string, passwordHash: Bcrypt.hash}
-  @scope("global") @val external users: array<t> = "users"
+  @scope("global") @val external users: array<Model.User.t> = "users"
 
-  let getAll = (): Promise.t<array<t>> => users->Promise.resolve
-  let getByUsername = (username: string): Promise.t<option<t>> =>
+  let getAll = (): Promise.t<array<Model.User.t>> => users->Promise.resolve
+  let getByUsername = (username: string): Promise.t<option<Model.User.t>> =>
     users->Js.Array2.find(user => user.username == username)->Promise.resolve
-  let create = (user: t): Promise.t<unit> => user->Js.Array2.push(users, _)->ignore->Promise.resolve
+  let create = (user: Model.User.t): Promise.t<unit> =>
+    user->Js.Array2.push(users, _)->ignore->Promise.resolve
 }

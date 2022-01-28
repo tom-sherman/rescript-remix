@@ -1,5 +1,5 @@
 @decco
-type loaderData = {randomJoke: Db.Jokes.t}
+type loaderData = {randomJoke: Model.Joke.t}
 
 let loader: Remix.loaderFunction = _ => {
   open Webapi.Fetch

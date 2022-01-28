@@ -1,5 +1,5 @@
 @decco
-type loaderData = {joke: Db.Jokes.t, isOwner: bool}
+type loaderData = {joke: Model.Joke.t, isOwner: bool}
 
 let meta: Remix.metaFunction = ({data}) => {
   switch data {

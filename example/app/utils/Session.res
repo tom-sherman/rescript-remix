@@ -5,12 +5,12 @@ let register = ({username, password}): Promise.t<unit> =>
   ->Bcrypt.hash(10)
   ->Promise.then(passwordHash =>
     {
-      Db.Users.username: username,
+      Model.User.username: username,
       passwordHash: passwordHash,
     }->Db.Users.create
   )
 
-let login = ({username, password}): Promise.t<option<Db.Users.t>> =>
+let login = ({username, password}): Promise.t<option<Model.User.t>> =>
   username
   ->Db.Users.getByUsername
   ->Promise.then(user =>
@@ -72,7 +72,7 @@ let logout = (request: Webapi.Fetch.Request.t): Promise.t<Webapi.Fetch.Response.
     )
   )
 
-let getUser = (request: Webapi.Fetch.Request.t): Promise.t<option<Db.Users.t>> =>
+let getUser = (request: Webapi.Fetch.Request.t): Promise.t<option<Model.User.t>> =>
   request
   ->getUserId
   ->Promise.then(userId =>

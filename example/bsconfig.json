@@ -1,5 +1,5 @@
 {
-  "name": "rescript-project-template",
+  "name": "rescript-remix-jokes",
   "version": "0.0.1",
   "sources": [{
     "dir": "app",

@@ -1,5 +1,5 @@
 @react.component
-let make = (~joke: Db.Jokes.t, ~isOwner: bool, ~canDelete: bool=true) =>
+let make = (~joke: Model.Joke.t, ~isOwner: bool, ~canDelete: bool=true) =>
   <div>
     <p> {"Here's your hilarious joke:"->React.string} </p>
     <p> {joke.content->React.string} </p>

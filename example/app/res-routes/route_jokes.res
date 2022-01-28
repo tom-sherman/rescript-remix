@@ -5,7 +5,7 @@ let links: Remix.linksFunction = () => [
 ]
 
 @decco
-type loaderData = {jokeListItems: array<Db.Jokes.t>, username: option<string>}
+type loaderData = {jokeListItems: array<Model.Joke.t>, username: option<string>}
 
 let loader: Remix.loaderFunction = ({request}) => {
   Promise.all2((request->Session.getUser, Db.Jokes.getLatest()))->Promise.thenResolve(((
