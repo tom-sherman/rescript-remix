@@ -1,6 +1,4 @@
-type loaderData = unit
-
-let loader: Remix.loaderFunctionForResponse = ({request}) => {
+let loader: Remix.loaderFunction = ({request}) => {
   open Webapi.Fetch
 
   request
@@ -32,8 +30,11 @@ let validateJokeName = (name: string) => {
   }
 }
 
+@decco
 type fieldErrors = {name: option<string>, content: option<string>}
+@decco
 type fields = {name: string, content: string}
+@decco
 type actionData = {
   formError: option<string>,
   fieldErrors: option<fieldErrors>,
@@ -45,7 +46,7 @@ let makeActionData = (~formError=?, ~fieldErrors=?, ~fields=?, ()) => {
   fields: fields,
 }
 
-let action: Remix.actionFunctionForResponse = ({request}) => {
+let action: Remix.actionFunction = ({request}) => {
   request
   ->Session.requireUserId
   ->Promise.then(userId => {
@@ -72,10 +73,17 @@ let action: Remix.actionFunctionForResponse = ({request}) => {
             ->Db.Jokes.create
             ->Promise.thenResolve(joke => Remix.redirect(`/jokes/${joke.id}`))
           } else {
-            makeActionData(~fieldErrors, ~fields, ())->Remix.json->Promise.resolve
+            makeActionData(~fieldErrors, ~fields, ())
+            ->actionData_encode
+            ->Remix.json
+            ->Promise.resolve
           }
         }
-      | _ => makeActionData(~formError="Form not submitted correctly")->Remix.json->Promise.resolve
+      | _ =>
+        makeActionData(~formError="Form not submitted correctly", ())
+        ->actionData_encode
+        ->Remix.json
+        ->Promise.resolve
       }
     })
   })
@@ -84,7 +92,10 @@ let action: Remix.actionFunctionForResponse = ({request}) => {
 let default = () => {
   open Belt.Option
 
-  let actionData: option<actionData> = Remix.useActionData()
+  let actionData =
+    Remix.useActionData()->Belt.Option.map(actionData =>
+      actionData->actionData_decode->Belt.Result.getExn
+    )
 
   <div>
     <p> {"Add your own hilarious joke"->React.string} </p>

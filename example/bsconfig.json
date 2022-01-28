@@ -19,7 +19,11 @@
   "bs-dependencies": [
     "@rescript/react",
     "rescript-webapi",
-    "@ryyppy/rescript-promise"
+    "@ryyppy/rescript-promise",
+    "decco"
+  ],
+  "ppx-flags": [
+    "decco/ppx"
   ],
   "warnings": {
     "error": "+101"

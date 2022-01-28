@@ -1,12 +1,15 @@
+@decco
 type loaderData = {joke: Db.Jokes.t, isOwner: bool}
 
-let meta: Remix.metaFunction<loaderData> = ({data}) => {
+let meta: Remix.metaFunction = ({data}) => {
   switch data {
-  | Some(data) =>
-    Remix.HtmlMetaDescriptor.make({
-      "title": `${data.joke.name} joke`,
-      "description": `Enjoy the ${data.joke.name} joke and much more`,
-    })
+  | Some(json) => {
+      let data = json->loaderData_decode->Belt.Result.getExn
+      Remix.HtmlMetaDescriptor.make({
+        "title": `${data.joke.name} joke`,
+        "description": `Enjoy the ${data.joke.name} joke and much more`,
+      })
+    }
   | None =>
     Remix.HtmlMetaDescriptor.make({
       "title": "No joke",
@@ -15,7 +18,7 @@ let meta: Remix.metaFunction<loaderData> = ({data}) => {
   }
 }
 
-let loader: Remix.loaderFunctionForResponse = ({request, params}) => {
+let loader: Remix.loaderFunction = ({request, params}) => {
   open Webapi.Fetch
 
   let jokeId = params->Js.Dict.get("jokeId")->Belt.Option.getExn
@@ -26,7 +29,7 @@ let loader: Remix.loaderFunctionForResponse = ({request, params}) => {
     switch joke {
     | Some(joke) =>
       Remix.jsonWithInit(
-        {"joke": joke, "isOwner": userId == Some(joke.jokesterId)},
+        {joke: joke, isOwner: userId == Some(joke.jokesterId)}->loaderData_encode,
         ResponseInit.make(
           ~headers=HeadersInit.make({
             "Cache-Control": `public, max-age=${(60 * 5)->Js.Int.toString}, s-maxage=${(60 *
@@ -55,7 +58,7 @@ let headers: Remix.headersFunction = ({loaderHeaders}) => {
   )
 }
 
-let action: Remix.actionFunctionForResponse = ({request, params}) => {
+let action: Remix.actionFunction = ({request, params}) => {
   open Webapi.Fetch
 
   request
@@ -100,7 +103,7 @@ let action: Remix.actionFunctionForResponse = ({request, params}) => {
 
 @react.component
 let default = () => {
-  let data: loaderData = Remix.useLoaderData()
+  let data = Remix.useLoaderData()->loaderData_decode->Belt.Result.getExn
 
   <JokeDisplay joke={data.joke} isOwner={data.isOwner} />
 }

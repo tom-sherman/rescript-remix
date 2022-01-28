@@ -72,7 +72,7 @@ type params = Js.Dict.t<string>
 
 @module("remix") external json: 'a => Webapi.Fetch.Response.t = "json"
 @module("remix")
-external jsonWithInit: ({..}, Webapi.Fetch.ResponseInit.t) => Webapi.Fetch.Response.t = "json"
+external jsonWithInit: ('a, Webapi.Fetch.ResponseInit.t) => Webapi.Fetch.Response.t = "json"
 
 @module("remix") external redirect: string => Webapi.Fetch.Response.t = "redirect"
 @module("remix")
@@ -81,9 +81,9 @@ external redirectWithInit: (string, Webapi.Fetch.ResponseInit.t) => Webapi.Fetch
 
 @module("remix") external useBeforeUnload: (@uncurry unit => unit) => unit = "useBeforeUnload"
 
-@module("remix") external useLoaderData: unit => 'a = "useLoaderData"
+@module("remix") external useLoaderData: unit => Js.Json.t = "useLoaderData"
 
-@module("remix") external useActionData: unit => option<'a> = "useActionData"
+@module("remix") external useActionData: unit => option<Js.Json.t> = "useActionData"
 
 @module("remix") external useCatch: unit => Webapi.Fetch.Response.t = "useCatch"
 
@@ -97,8 +97,8 @@ type dataFunctionArgs = {
 }
 type routeData
 type location
-type metaFunctionArgs<'appData> = {
-  data: option<'appData>,
+type metaFunctionArgs = {
+  data: option<Js.Json.t>,
   parentsData: routeData,
   params: params,
   location: location,
@@ -108,7 +108,7 @@ module HtmlMetaDescriptor = {
 
   external make: {..} => t = "%identity"
 }
-type metaFunction<'appData> = metaFunctionArgs<'appData> => HtmlMetaDescriptor.t
+type metaFunction = metaFunctionArgs => HtmlMetaDescriptor.t
 
 module HtmlLinkDescriptor = {
   type t
@@ -188,11 +188,9 @@ type headersFunctionArgs = {
 }
 type headersFunction = headersFunctionArgs => Webapi.Fetch.Headers.t
 
-type loaderFunction<'resultType> = dataFunctionArgs => Js.Promise.t<'resultType>
-type loaderFunctionForData<'resultType> = dataFunctionArgs => Js.Promise.t<'resultType>
-type loaderFunctionForResponse = dataFunctionArgs => Js.Promise.t<Webapi.Fetch.Response.t>
+type loaderFunction = dataFunctionArgs => Js.Promise.t<Webapi.Fetch.Response.t>
 
-type actionFunctionForResponse = dataFunctionArgs => Js.Promise.t<Webapi.Fetch.Response.t>
+type actionFunction = dataFunctionArgs => Js.Promise.t<Webapi.Fetch.Response.t>
 
 type catchBoundaryComponent = unit => React.element
 

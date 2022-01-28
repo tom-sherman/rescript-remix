@@ -1,3 +1,3 @@
-let action: Remix.actionFunctionForResponse = ({request}) => request->Session.logout
+let action: Remix.actionFunction = ({request}) => request->Session.logout
 
-let loader: Remix.loaderFunctionForResponse = _ => Remix.redirect("/")->Promise.resolve
+let loader: Remix.loaderFunction = _ => Remix.redirect("/")->Promise.resolve

@@ -5,7 +5,7 @@ let init = () => {
       jokesterId: "drew",
       name: "javascript",
       content: "Sometimes when I'm writing Javascript I want to throw up my hands and say \"this is awful!\" but I can never remember what \"this\" refers to.",
-      createdAt: new Date()
+      createdAt: Date.now()
     },
   ]`)->ignore
   %raw(`global.users = global.users || [
@@ -18,7 +18,8 @@ let init = () => {
 
 module Jokes = {
   type new_t = {jokesterId: string, name: string, content: string}
-  type t = {id: string, jokesterId: string, name: string, content: string, createdAt: Js.Date.t}
+  @decco
+  type t = {id: string, jokesterId: string, name: string, content: string, createdAt: float}
   @scope("global") @val external jokes: array<t> = "jokes"
 
   let getById = (jokeId: string): Promise.t<option<t>> =>
@@ -33,7 +34,7 @@ module Jokes = {
       name: joke.name,
       content: joke.content,
       jokesterId: joke.jokesterId,
-      createdAt: Js.Date.make(),
+      createdAt: Js.Date.now(),
     }
     jokes->Js.Array2.push(newJoke)->ignore
     newJoke->Promise.resolve

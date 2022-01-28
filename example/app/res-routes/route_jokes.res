@@ -4,21 +4,26 @@ let links: Remix.linksFunction = () => [
   Remix.HtmlLinkDescriptor.make(~rel=#stylesheet, ~href=%raw(`stylesUrl`), ()),
 ]
 
-type loaderData = {jokeListItems: array<Db.Jokes.t>, user: option<Db.Users.t>}
+@decco
+type loaderData = {jokeListItems: array<Db.Jokes.t>, username: option<string>}
 
-let loader: Remix.loaderFunction<loaderData> = ({request}) => {
+let loader: Remix.loaderFunction = ({request}) => {
   Promise.all2((request->Session.getUser, Db.Jokes.getLatest()))->Promise.thenResolve(((
     user,
     jokes,
-  )) => {
-    user: user,
-    jokeListItems: jokes,
-  })
+  )) =>
+    {
+      username: user->Belt.Option.map(user => user.username),
+      jokeListItems: jokes,
+    }
+    ->loaderData_encode
+    ->Remix.json
+  )
 }
 
 @react.component
 let default = () => {
-  let data: loaderData = Remix.useLoaderData()
+  let data = Remix.useLoaderData()->loaderData_decode->Belt.Result.getExn
 
   <div className="jokes-layout">
     <header className="jokes-header">
@@ -30,10 +35,10 @@ let default = () => {
             <span className="logo-medium"> {`J🤪KES`->React.string} </span>
           </Remix.Link>
         </h1>
-        {switch data.user {
-        | Some(user) =>
+        {switch data.username {
+        | Some(username) =>
           <div className="user-info">
-            <span> {`Hi ${user.username}`->React.string} </span>
+            <span> {`Hi ${username}`->React.string} </span>
             <Remix.Form action="/logout" method=#post>
               <button type_="submit" className="button"> {"Logout"->React.string} </button>
             </Remix.Form>

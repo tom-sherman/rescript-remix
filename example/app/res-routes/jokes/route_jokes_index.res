@@ -1,11 +1,12 @@
+@decco
 type loaderData = {randomJoke: Db.Jokes.t}
 
-let loader: Remix.loaderFunction<loaderData> = _ => {
+let loader: Remix.loaderFunction = _ => {
   open Webapi.Fetch
 
   Db.Jokes.getRandom()->Promise.then(joke =>
     switch joke {
-    | Some(joke) => Promise.resolve({randomJoke: joke})
+    | Some(joke) => {randomJoke: joke}->loaderData_encode->Remix.json->Promise.resolve
     | None =>
       RemixHelpers.Promise.rejectResponse(
         Response.makeWithInit("No random joke found", ResponseInit.make(~status=404, ())),
@@ -16,7 +17,7 @@ let loader: Remix.loaderFunction<loaderData> = _ => {
 
 @react.component
 let default = () => {
-  let data: loaderData = Remix.useLoaderData()
+  let data = Remix.useLoaderData()->loaderData_decode->Belt.Result.getExn
 
   <div>
     <p> {"Here's a random joke:"->React.string} </p>

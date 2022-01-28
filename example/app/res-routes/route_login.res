@@ -1,6 +1,6 @@
 %%raw(`import stylesUrl from "../styles/login.css"`)
 
-let meta: Remix.metaFunction<unit> = _ =>
+let meta: Remix.metaFunction = _ =>
   Remix.HtmlMetaDescriptor.make({
     "title": "Remix Jokes | Login",
     "description": "Login to submit your own jokes to Remix Jokes!",
@@ -36,8 +36,11 @@ let validatePassword = (password: string) =>
     None
   }
 
+@decco
 type fieldErrors = {username: option<string>, password: option<string>}
+@decco
 type fields = {loginType: string, username: string, password: string}
+@decco
 type actionData = {
   formError: option<string>,
   fieldErrors: option<fieldErrors>,
@@ -49,7 +52,7 @@ let makeActionData = (~formError=?, ~fieldErrors=?, ~fields=?, ()): actionData =
   fields: fields,
 }
 
-let action: Remix.actionFunctionForResponse = ({request}) => {
+let action: Remix.actionFunction = ({request}) => {
   request
   ->Webapi.Fetch.Request.formData
   ->Promise.then(formData => {
@@ -71,7 +74,7 @@ let action: Remix.actionFunctionForResponse = ({request}) => {
         }
 
         if fieldErrors != {username: None, password: None} {
-          makeActionData(~fieldErrors, ~fields, ())->Remix.json->Promise.resolve
+          makeActionData(~fieldErrors, ~fields, ())->actionData_encode->Remix.json->Promise.resolve
         } else {
           switch loginType {
           | "login" =>
@@ -82,6 +85,7 @@ let action: Remix.actionFunctionForResponse = ({request}) => {
               | Some(user) => Session.createUserSession(user.username, "/jokes")
               | None =>
                 makeActionData(~formError="Username/Password combination is incorrect", ~fields, ())
+                ->actionData_encode
                 ->Remix.json
                 ->Promise.resolve
               }
@@ -95,6 +99,7 @@ let action: Remix.actionFunctionForResponse = ({request}) => {
                   ~fields,
                   (),
                 )
+                ->actionData_encode
                 ->Remix.json
                 ->Promise.resolve
               | None =>
@@ -107,13 +112,17 @@ let action: Remix.actionFunctionForResponse = ({request}) => {
             })
           | _ =>
             makeActionData(~formError="Login type invalid", ~fields, ())
+            ->actionData_encode
             ->Remix.json
             ->Promise.resolve
           }
         }
       }
     | _ =>
-      makeActionData(~formError="Form not submitted correctly.", ())->Remix.json->Promise.resolve
+      makeActionData(~formError="Form not submitted correctly.", ())
+      ->actionData_encode
+      ->Remix.json
+      ->Promise.resolve
     }
   })
 }
@@ -121,7 +130,10 @@ let action: Remix.actionFunctionForResponse = ({request}) => {
 @react.component
 let default = () => {
   open Belt.Option
-  let actionData: option<actionData> = Remix.useActionData()
+  let actionData =
+    Remix.useActionData()->Belt.Option.map(actionData =>
+      actionData->actionData_decode->Belt.Result.getExn
+    )
 
   <div className="container">
     <div className="content light">

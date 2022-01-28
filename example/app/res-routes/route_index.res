@@ -1,6 +1,6 @@
 %%raw(`import stylesUrl from "../styles/index.css"`)
 
-let meta: Remix.metaFunction<unit> = _ =>
+let meta: Remix.metaFunction = _ =>
   Remix.HtmlMetaDescriptor.make({
     "title": "Remix: So great, it's funny!",
     "description": "Remix jokes app. Learn Remix and laugh at the same time!",

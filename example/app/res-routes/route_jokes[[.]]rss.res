@@ -1,4 +1,4 @@
-let loader: Remix.loaderFunctionForResponse = ({request}) => {
+let loader: Remix.loaderFunction = ({request}) => {
   open Webapi.Fetch
 
   Promise.all2((Db.Users.getAll(), Db.Jokes.getAll()))->Promise.then(((users, jokes)) => {
@@ -25,7 +25,7 @@ let loader: Remix.loaderFunctionForResponse = ({request}) => {
           ->Js.Array2.find(user => user.username == joke.jokesterId)
           ->Belt.Option.map(user => user.username)
           ->Belt.Option.getWithDefault("")}</author>
-                <pubDate>${joke.createdAt->Js.Date.toString}</pubDate>
+                <pubDate>${joke.createdAt->Js.Date.fromFloat->Js.Date.toString}</pubDate>
                 <link>${jokesUrl}/${joke.id}</link>
                 <guid>${jokesUrl}/${joke.id}</guid>
               </item>

@@ -18,7 +18,7 @@ let links: Remix.linksFunction = () => [
   ),
 ]
 
-let meta: Remix.metaFunction<unit> = _ => {
+let meta: Remix.metaFunction = _ => {
   let description = `Learn Remix and laugh at the same time!`
   Remix.HtmlMetaDescriptor.make({
     "viewport": "width=device-width,initial-scale=1",
