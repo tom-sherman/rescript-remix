@@ -36,20 +36,23 @@ let validatePassword = (password: string) =>
     None
   }
 
-@decco
-type fieldErrors = {username: option<string>, password: option<string>}
-@decco
-type fields = {loginType: string, username: string, password: string}
-@decco
-type actionData = {
-  formError: option<string>,
-  fieldErrors: option<fieldErrors>,
-  fields: option<fields>,
-}
-let makeActionData = (~formError=?, ~fieldErrors=?, ~fields=?, ()): actionData => {
-  formError: formError,
-  fieldErrors: fieldErrors,
-  fields: fields,
+module ActionData = {
+  @decco
+  type fieldErrors = {username: option<string>, password: option<string>}
+  @decco
+  type fields = {loginType: string, username: string, password: string}
+  @decco
+  type t = {
+    formError: option<string>,
+    fieldErrors: option<fieldErrors>,
+    fields: option<fields>,
+  }
+
+  let make = (~formError=?, ~fieldErrors=?, ~fields=?, ()): t => {
+    formError: formError,
+    fieldErrors: fieldErrors,
+    fields: fields,
+  }
 }
 
 let action: Remix.actionFunction = ({request}) => {
@@ -62,19 +65,22 @@ let action: Remix.actionFunction = ({request}) => {
 
     switch (loginType, username, password) {
     | (Some(loginType), Some(username), Some(password)) => {
-        let fields = {
+        let fields: ActionData.fields = {
           loginType: loginType,
           username: username,
           password: password,
         }
 
-        let fieldErrors = {
+        let fieldErrors: ActionData.fieldErrors = {
           username: username->validateUsername,
           password: password->validatePassword,
         }
 
         if fieldErrors != {username: None, password: None} {
-          makeActionData(~fieldErrors, ~fields, ())->actionData_encode->Remix.json->Promise.resolve
+          ActionData.make(~fieldErrors, ~fields, ())
+          ->ActionData.t_encode
+          ->Remix.json
+          ->Promise.resolve
         } else {
           switch loginType {
           | "login" =>
@@ -84,8 +90,12 @@ let action: Remix.actionFunction = ({request}) => {
               switch user {
               | Some(user) => Session.createUserSession(user.username, "/jokes")
               | None =>
-                makeActionData(~formError="Username/Password combination is incorrect", ~fields, ())
-                ->actionData_encode
+                ActionData.make(
+                  ~formError="Username/Password combination is incorrect",
+                  ~fields,
+                  (),
+                )
+                ->ActionData.t_encode
                 ->Remix.json
                 ->Promise.resolve
               }
@@ -94,12 +104,12 @@ let action: Remix.actionFunction = ({request}) => {
             Db.Users.getByUsername(username)->Promise.then(existingUser => {
               switch existingUser {
               | Some(_) =>
-                makeActionData(
+                ActionData.make(
                   ~formError=`User with username ${username} already exists`,
                   ~fields,
                   (),
                 )
-                ->actionData_encode
+                ->ActionData.t_encode
                 ->Remix.json
                 ->Promise.resolve
               | None =>
@@ -111,16 +121,16 @@ let action: Remix.actionFunction = ({request}) => {
               }
             })
           | _ =>
-            makeActionData(~formError="Login type invalid", ~fields, ())
-            ->actionData_encode
+            ActionData.make(~formError="Login type invalid", ~fields, ())
+            ->ActionData.t_encode
             ->Remix.json
             ->Promise.resolve
           }
         }
       }
     | _ =>
-      makeActionData(~formError="Form not submitted correctly.", ())
-      ->actionData_encode
+      ActionData.make(~formError="Form not submitted correctly.", ())
+      ->ActionData.t_encode
       ->Remix.json
       ->Promise.resolve
     }
@@ -132,7 +142,7 @@ let default = () => {
   open Belt.Option
   let actionData =
     Remix.useActionData()->Belt.Option.map(actionData =>
-      actionData->actionData_decode->Belt.Result.getExn
+      actionData->ActionData.t_decode->Belt.Result.getExn
     )
 
   <div className="container">

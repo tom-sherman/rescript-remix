@@ -30,20 +30,23 @@ let validateJokeName = (name: string) => {
   }
 }
 
-@decco
-type fieldErrors = {name: option<string>, content: option<string>}
-@decco
-type fields = {name: string, content: string}
-@decco
-type actionData = {
-  formError: option<string>,
-  fieldErrors: option<fieldErrors>,
-  fields: option<fields>,
-}
-let makeActionData = (~formError=?, ~fieldErrors=?, ~fields=?, ()) => {
-  formError: formError,
-  fieldErrors: fieldErrors,
-  fields: fields,
+module ActionData = {
+  @decco
+  type fieldErrors = {name: option<string>, content: option<string>}
+  @decco
+  type fields = {name: string, content: string}
+  @decco
+  type t = {
+    formError: option<string>,
+    fieldErrors: option<fieldErrors>,
+    fields: option<fields>,
+  }
+
+  let make = (~formError=?, ~fieldErrors=?, ~fields=?, ()) => {
+    formError: formError,
+    fieldErrors: fieldErrors,
+    fields: fields,
+  }
 }
 
 let action: Remix.actionFunction = ({request}) => {
@@ -58,12 +61,12 @@ let action: Remix.actionFunction = ({request}) => {
 
       switch (name, content) {
       | (Some(name), Some(content)) => {
-          let fields: fields = {
+          let fields: ActionData.fields = {
             name: name,
             content: content,
           }
 
-          let fieldErrors: fieldErrors = {
+          let fieldErrors: ActionData.fieldErrors = {
             name: validateJokeName(name),
             content: validateJokeContent(content),
           }
@@ -73,15 +76,15 @@ let action: Remix.actionFunction = ({request}) => {
             ->Db.Jokes.create
             ->Promise.thenResolve(joke => Remix.redirect(`/jokes/${joke.id}`))
           } else {
-            makeActionData(~fieldErrors, ~fields, ())
-            ->actionData_encode
+            ActionData.make(~fieldErrors, ~fields, ())
+            ->ActionData.t_encode
             ->Remix.json
             ->Promise.resolve
           }
         }
       | _ =>
-        makeActionData(~formError="Form not submitted correctly", ())
-        ->actionData_encode
+        ActionData.make(~formError="Form not submitted correctly", ())
+        ->ActionData.t_encode
         ->Remix.json
         ->Promise.resolve
       }
@@ -94,7 +97,7 @@ let default = () => {
 
   let actionData =
     Remix.useActionData()->Belt.Option.map(actionData =>
-      actionData->actionData_decode->Belt.Result.getExn
+      actionData->ActionData.t_decode->Belt.Result.getExn
     )
 
   <div>
