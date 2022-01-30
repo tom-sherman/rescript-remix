@@ -99,66 +99,90 @@ let default = () => {
     Remix.useActionData()->Belt.Option.map(actionData =>
       actionData->ActionData.t_decode->Belt.Result.getExn
     )
+  let transition = Remix.useTransition()
 
-  <div>
-    <p> {"Add your own hilarious joke"->React.string} </p>
-    <Remix.Form method=#post>
-      <div>
-        <label>
-          {"Name: "->React.string}
-          <input
-            type_="text"
-            defaultValue={actionData
-            ->flatMap(data => data.fields)
-            ->map(fields => fields.name)
-            ->getWithDefault("")}
-            name="name"
-            // aria-invalid={Boolean(actionData?.fieldErrors?.name)}
-            ariaDescribedby=?{actionData
-            ->flatMap(data => data.fieldErrors)
-            ->flatMap(fieldErrors => fieldErrors.name)
-            ->map(_ => "name-error")}
-          />
-        </label>
-        {switch actionData
-        ->flatMap(data => data.fieldErrors)
-        ->flatMap(fieldErrors => fieldErrors.name) {
-        | Some(nameError) =>
-          <p className="form-validation-error" role="alert" id="name-error">
-            {nameError->React.string}
-          </p>
-        | None => React.null
-        }}
-      </div>
-      <div>
-        <label>
-          {"Content: "->React.string}
-          <textarea
-            defaultValue={actionData
-            ->flatMap(data => data.fields)
-            ->map(fields => fields.content)
-            ->getWithDefault("")}
-            name="content"
-            // aria-invalid={Boolean(actionData?.fieldErrors?.content)}
-            ariaDescribedby=?{actionData
-            ->flatMap(data => data.fieldErrors)
-            ->flatMap(fieldErrors => fieldErrors.name)
-            ->map(_ => "content-error")}
-          />
-        </label>
-        {switch actionData
-        ->flatMap(data => data.fieldErrors)
-        ->flatMap(fieldErrors => fieldErrors.content) {
-        | Some(contentError) =>
-          <p className="form-validation-error" role="alert" id="content-error">
-            {contentError->React.string}
-          </p>
-        | None => React.null
-        }}
-      </div>
-      <button type_="submit" className="button"> {"Add"->React.string} </button>
-    </Remix.Form>
-  </div>
+  let submittedJoke =
+    transition.submission
+    ->Belt.Option.flatMap(submission => {
+      let name = submission.formData->RemixHelpers.FormData.getStringValue("name")
+      let content = submission.formData->RemixHelpers.FormData.getStringValue("content")
+
+      switch (name, content) {
+      | (Some(name), Some(content)) => Some((name, content))
+
+      | _ => None
+      }
+    })
+    ->Belt.Option.flatMap(((name, content)) => {
+      switch (name->validateJokeName, content->validateJokeContent) {
+      | (None, None) => Some((name, content))
+      | _ => None
+      }
+    })
+
+  switch submittedJoke {
+  | Some((name, content)) => <JokeDisplay name content isOwner=true canDelete=false />
+  | None =>
+    <div>
+      <p> {"Add your own hilarious joke"->React.string} </p>
+      <Remix.Form method=#post>
+        <div>
+          <label>
+            {"Name: "->React.string}
+            <input
+              type_="text"
+              defaultValue={actionData
+              ->flatMap(data => data.fields)
+              ->map(fields => fields.name)
+              ->getWithDefault("")}
+              name="name"
+              // aria-invalid={Boolean(actionData?.fieldErrors?.name)}
+              ariaDescribedby=?{actionData
+              ->flatMap(data => data.fieldErrors)
+              ->flatMap(fieldErrors => fieldErrors.name)
+              ->map(_ => "name-error")}
+            />
+          </label>
+          {switch actionData
+          ->flatMap(data => data.fieldErrors)
+          ->flatMap(fieldErrors => fieldErrors.name) {
+          | Some(nameError) =>
+            <p className="form-validation-error" role="alert" id="name-error">
+              {nameError->React.string}
+            </p>
+          | None => React.null
+          }}
+        </div>
+        <div>
+          <label>
+            {"Content: "->React.string}
+            <textarea
+              defaultValue={actionData
+              ->flatMap(data => data.fields)
+              ->map(fields => fields.content)
+              ->getWithDefault("")}
+              name="content"
+              // aria-invalid={Boolean(actionData?.fieldErrors?.content)}
+              ariaDescribedby=?{actionData
+              ->flatMap(data => data.fieldErrors)
+              ->flatMap(fieldErrors => fieldErrors.name)
+              ->map(_ => "content-error")}
+            />
+          </label>
+          {switch actionData
+          ->flatMap(data => data.fieldErrors)
+          ->flatMap(fieldErrors => fieldErrors.content) {
+          | Some(contentError) =>
+            <p className="form-validation-error" role="alert" id="content-error">
+              {contentError->React.string}
+            </p>
+          | None => React.null
+          }}
+        </div>
+        <button type_="submit" className="button"> {"Add"->React.string} </button>
+      </Remix.Form>
+    </div>
+  }
 }
 
 let catchBoundary: Remix.catchBoundaryComponent = () => {

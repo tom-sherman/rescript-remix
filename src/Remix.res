@@ -89,6 +89,33 @@ external redirectWithInit: (string, Webapi.Fetch.ResponseInit.t) => Webapi.Fetch
 
 @module("remix") external useParams: unit => params = "useParams"
 
+type location
+type submission = {
+  action: string,
+  method: [#get | #post | #put | #patch | #delete],
+  formData: Webapi.FormData.t,
+  encType: [#"application/x-www-form-urlencoded" | #"multipart/form-data"],
+  key: string,
+}
+type transition = {
+  state: [#idle | #submitting | #loading],
+  @as("type")
+  type_: [
+    | #idle
+    | #actionSubmission
+    | #loaderSubmission
+    | #loaderSubmissionRedirect
+    | #actionReload
+    | #actionRedirect
+    | #fetchActionRedirect
+    | #normalRedirect
+    | #normalLoad
+  ],
+  submission: option<submission>,
+  location: option<location>,
+}
+@module("remix") external useTransition: unit => transition = "useTransition"
+
 type appLoadContext
 type dataFunctionArgs = {
   request: Webapi.Fetch.Request.t,
@@ -96,7 +123,6 @@ type dataFunctionArgs = {
   params: params,
 }
 type routeData
-type location
 type metaFunctionArgs = {
   data: option<Js.Json.t>,
   parentsData: routeData,

@@ -22,10 +22,10 @@ let loader: Remix.loaderFunction = ({request, params}) => {
   open Webapi.Fetch
 
   let jokeId = params->Js.Dict.get("jokeId")->Belt.Option.getExn
-  Promise.all2((
-    request->Session.getUserId,
-    jokeId->Db.Jokes.getById,
-  ))->Promise.then(((userId, joke)) => {
+  Promise.all2((request->Session.getUserId, jokeId->Db.Jokes.getById))->Promise.then(((
+    userId,
+    joke,
+  )) => {
     switch joke {
     | Some(joke) =>
       Remix.jsonWithInit(
@@ -70,10 +70,10 @@ let action: Remix.actionFunction = ({request, params}) => {
     switch method {
     | "delete" => {
         let jokeId = params->Js.Dict.get("jokeId")->Belt.Option.getExn
-        Promise.all2((
-          request->Session.requireUserId,
-          jokeId->Db.Jokes.getById,
-        ))->Promise.then(((userId, joke)) => {
+        Promise.all2((request->Session.requireUserId, jokeId->Db.Jokes.getById))->Promise.then(((
+          userId,
+          joke,
+        )) => {
           switch joke {
           | None =>
             RemixHelpers.Promise.rejectResponse(
@@ -91,9 +91,7 @@ let action: Remix.actionFunction = ({request, params}) => {
                 ),
               )
             } else {
-              Db.Jokes.deleteById(jokeId)->Promise.thenResolve(() =>
-                Remix.redirect("/jokes")
-              )
+              Db.Jokes.deleteById(jokeId)->Promise.thenResolve(() => Remix.redirect("/jokes"))
             }
           }
         })
@@ -107,7 +105,7 @@ let action: Remix.actionFunction = ({request, params}) => {
 let default = () => {
   let data = Remix.useLoaderData()->loaderData_decode->Belt.Result.getExn
 
-  <JokeDisplay joke={data.joke} isOwner={data.isOwner} />
+  <JokeDisplay name=data.joke.name content=data.joke.content isOwner={data.isOwner} />
 }
 
 let catchBoundary: Remix.catchBoundaryComponent = () => {
