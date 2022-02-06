@@ -14,22 +14,6 @@ let loader: Remix.loaderFunction = ({request}) => {
   })
 }
 
-let validateJokeContent = (content: string) => {
-  if content->Js.String2.length < 10 {
-    Some("That joke is too short")
-  } else {
-    None
-  }
-}
-
-let validateJokeName = (name: string) => {
-  if name->Js.String2.length < 2 {
-    Some("That joke's name is too short")
-  } else {
-    None
-  }
-}
-
 module ActionData = {
   @decco
   type fieldErrors = {name: option<string>, content: option<string>}
@@ -49,46 +33,60 @@ module ActionData = {
   }
 }
 
-let action: Remix.actionFunction = ({request}) => {
-  request
-  ->Session.requireUserId
-  ->Promise.then(userId => {
-    request
-    ->Webapi.Fetch.Request.formData
-    ->Promise.then(formData => {
-      let name = RemixHelpers.FormData.getStringValue(formData, "name")
-      let content = RemixHelpers.FormData.getStringValue(formData, "content")
+let validateJokeContent = (content: string) => {
+  if content->Js.String2.length < 10 {
+    Some("That joke is too short")
+  } else {
+    None
+  }
+}
 
-      switch (name, content) {
-      | (Some(name), Some(content)) => {
-          let fields: ActionData.fields = {
-            name: name,
-            content: content,
-          }
+let validateJokeName = (name: string) => {
+  if name->Js.String2.length < 2 {
+    Some("That joke's name is too short")
+  } else {
+    None
+  }
+}
 
-          let fieldErrors: ActionData.fieldErrors = {
-            name: validateJokeName(name),
-            content: validateJokeContent(content),
-          }
+let validateForm = (formData: Webapi.Fetch.FormData.t): ActionData.t => {
+  let name = RemixHelpers.FormData.getStringValue(formData, "name")
+  let content = RemixHelpers.FormData.getStringValue(formData, "content")
 
-          if fieldErrors == {name: None, content: None} {
-            {Db.Jokes.name: name, content: content, jokesterId: userId}
-            ->Db.Jokes.create
-            ->Promise.thenResolve(joke => Remix.redirect(`/jokes/${joke.id}`))
-          } else {
-            ActionData.make(~fieldErrors, ~fields, ())
-            ->ActionData.t_encode
-            ->Remix.json
-            ->Promise.resolve
-          }
-        }
-      | _ =>
-        ActionData.make(~formError="Form not submitted correctly", ())
-        ->ActionData.t_encode
-        ->Remix.json
-        ->Promise.resolve
+  switch (name, content) {
+  | (Some(name), Some(content)) => {
+      let fields: ActionData.fields = {
+        name: name,
+        content: content,
       }
-    })
+
+      let fieldErrors: ActionData.fieldErrors = {
+        name: validateJokeName(name),
+        content: validateJokeContent(content),
+      }
+
+      if fieldErrors == {name: None, content: None} {
+        ActionData.make(~fields, ())
+      } else {
+        ActionData.make(~fieldErrors, ~fields, ())
+      }
+    }
+  | _ => ActionData.make(~formError="Form not submitted correctly", ())
+  }
+}
+
+let action: Remix.actionFunction = ({request}) => {
+  Promise.all2((
+    request->Session.requireUserId,
+    request->Webapi.Fetch.Request.formData->Promise.thenResolve(validateForm),
+  ))->Promise.then(((userId, submission)) => {
+    switch submission {
+    | {fields: Some({name, content}), fieldErrors: None, formError: None} =>
+      {Db.Jokes.name: name, content: content, jokesterId: userId}
+      ->Db.Jokes.create
+      ->Promise.thenResolve(joke => Remix.redirect(`/jokes/${joke.id}`))
+    | _ => submission->ActionData.t_encode->Remix.json->Promise.resolve
+    }
   })
 }
 
@@ -101,24 +99,15 @@ let default = () => {
     )
   let transition = Remix.useTransition()
 
-  let submittedJoke =
-    transition.submission
-    ->Belt.Option.flatMap(submission => {
-      let name = submission.formData->RemixHelpers.FormData.getStringValue("name")
-      let content = submission.formData->RemixHelpers.FormData.getStringValue("content")
-
-      switch (name, content) {
-      | (Some(name), Some(content)) => Some((name, content))
-
+  let submittedJoke = {
+    transition.submission->flatMap(submission => {
+      let validationResult = submission.formData->validateForm
+      switch validationResult {
+      | {fields: Some({name, content}), fieldErrors: None, formError: None} => Some((name, content))
       | _ => None
       }
     })
-    ->Belt.Option.flatMap(((name, content)) => {
-      switch (name->validateJokeName, content->validateJokeContent) {
-      | (None, None) => Some((name, content))
-      | _ => None
-      }
-    })
+  }
 
   switch submittedJoke {
   | Some((name, content)) => <JokeDisplay name content isOwner=true canDelete=false />
