@@ -291,11 +291,14 @@ module Session = {
   @send external unset: (t, string) => unit = "unset"
 }
 
-type sessionStorage = {
-  getSession: (. option<string>) => Js.Promise.t<Session.t>,
-  commitSession: (. Session.t) => Js.Promise.t<string>,
-  destroySession: (. Session.t) => Js.Promise.t<string>,
+module SessionStorage = {
+  type t
+
+  @send external getSession: (t, option<string>) => Js.Promise.t<Session.t> = "getSession"
+  @send external commitSession: (t, Session.t) => Js.Promise.t<string> = "commitSession"
+  @send external destroySession: (t, Session.t) => Js.Promise.t<string> = "destroySession"
 }
+
 @module("remix")
-external createCookieSessionStorage: createCookieSessionStorageOptions => sessionStorage =
+external createCookieSessionStorage: createCookieSessionStorageOptions => SessionStorage.t =
   "createCookieSessionStorage"

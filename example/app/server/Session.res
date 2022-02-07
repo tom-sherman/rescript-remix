@@ -24,11 +24,7 @@ let login = ({username, password}): Promise.t<option<Db.Users.t>> =>
   )
 
 let sessionSecret = "very_secret"
-let {
-  Remix.getSession: getSession,
-  commitSession,
-  destroySession,
-} = Remix.createCookieSessionStorage({
+let sessionStorage = Remix.createCookieSessionStorage({
   cookie: Remix.CreateCookieSessionStorageCookieOptions.make(
     ~name="RJ_session",
     ~secure=true,
@@ -42,7 +38,10 @@ let {
 })
 
 let getUserSession = (request: Webapi.Fetch.Request.t): Promise.t<Remix.Session.t> =>
-  getSession(. request->Webapi.Fetch.Request.headers->Webapi.Fetch.Headers.get("Cookie"))
+  request
+  ->Webapi.Fetch.Request.headers
+  ->Webapi.Fetch.Headers.get("Cookie")
+  ->Remix.SessionStorage.getSession(sessionStorage, _)
 
 let getUserId = (request: Webapi.Fetch.Request.t): Promise.t<option<string>> => {
   request->getUserSession->Promise.thenResolve(session => session->Remix.Session.get("userId"))
@@ -60,8 +59,11 @@ let requireUserId = (request: Webapi.Fetch.Request.t): Promise.t<string> => {
 }
 
 let logout = (request: Webapi.Fetch.Request.t): Promise.t<Webapi.Fetch.Response.t> =>
-  getSession(. request->Webapi.Fetch.Request.headers->Webapi.Fetch.Headers.get("Cookie"))
-  ->Promise.then(session => destroySession(. session))
+  request
+  ->Webapi.Fetch.Request.headers
+  ->Webapi.Fetch.Headers.get("Cookie")
+  ->Remix.SessionStorage.getSession(sessionStorage, _)
+  ->Promise.then(session => session->Remix.SessionStorage.destroySession(sessionStorage, _))
   ->Promise.thenResolve(newCookie =>
     Remix.redirectWithInit(
       "/login",
@@ -83,9 +85,13 @@ let getUser = (request: Webapi.Fetch.Request.t): Promise.t<option<Db.Users.t>> =
   )
 
 let createUserSession = (userId: string, redirectTo: string): Promise.t<Webapi.Fetch.Response.t> =>
-  getSession(. None)->Promise.then(session => {
+  None
+  ->Remix.SessionStorage.getSession(sessionStorage, _)
+  ->Promise.then(session => {
     session->Remix.Session.set("userId", userId)
-    commitSession(. session)->Promise.thenResolve(newCookie => {
+    session
+    ->Remix.SessionStorage.commitSession(sessionStorage, _)
+    ->Promise.thenResolve(newCookie => {
       Remix.redirectWithInit(
         redirectTo,
         Webapi.Fetch.ResponseInit.make(
