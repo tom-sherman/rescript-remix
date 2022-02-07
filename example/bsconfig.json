@@ -1,0 +1,31 @@
+{
+  "name": "rescript-remix-jokes",
+  "version": "0.0.1",
+  "sources": [{
+    "dir": "app",
+    "subdirs": true
+  }, {
+    "dir": "../src",
+    "subdirs": true
+  }],
+  "package-specs": {
+    "module": "es6",
+    "in-source": true
+  },
+  "suffix": ".js",
+  "reason": {
+    "react-jsx": 3
+  },
+  "bs-dependencies": [
+    "@rescript/react",
+    "rescript-webapi",
+    "@ryyppy/rescript-promise",
+    "decco"
+  ],
+  "ppx-flags": [
+    "decco/ppx"
+  ],
+  "warnings": {
+    "error": "+101"
+  }
+}
