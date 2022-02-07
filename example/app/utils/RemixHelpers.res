@@ -6,7 +6,7 @@ module HeadersInit = {
 }
 
 module Promise = {
-  external responseAsExn: Webapi.Fetch.Response.t => 'a = "%identity"
+  external responseAsExn: Webapi.Fetch.Response.t => exn = "%identity"
   let rejectResponse = (response: Webapi.Fetch.Response.t): Promise.t<'a> => {
     Promise.reject(response->responseAsExn)
   }
